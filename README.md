@@ -41,5 +41,6 @@ API padrão: `http://localhost:3000`
 
 ## Observações
 - Repositório em memória para protótipo.
-- Compatível com Node.js >= 12 (testado com 13.5.0).
-- Para Node.js >= 14, pode usar versões mais recentes das dependências.
+- Compatível com Node.js >= 18 (testado com 18.20.8).
+- Zero vulnerabilidades de segurança!
+- Usa NestJS 11.1.18, Jest 29.7.0, TypeScript 5.4.5 para máxima segurança e performance.
