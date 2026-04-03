@@ -1,22 +1,46 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
 
 @Controller('transactions')
 export class TransactionsController {
+  private readonly logger = new Logger(TransactionsController.name);
+
   constructor(
     private readonly createTransaction: CreateTransactionUseCase,
     private readonly getTransactions: GetTransactionsUseCase,
   ) {}
 
   @Post()
-  create(@Body() payload: CreateTransactionDto) {
-    return this.createTransaction.execute(payload);
+  async create(@Body() payload: CreateTransactionDto) {
+    this.logger.log(`POST /transactions - Creating transaction: ${payload.description}`, 'TransactionsController');
+
+    try {
+      const result = await this.createTransaction.execute(payload);
+      this.logger.log(`Transaction created successfully: ${result.id}`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to create transaction: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
   }
 
   @Get()
-  findAll() {
-    return this.getTransactions.execute();
+  async findAll() {
+    this.logger.log('GET /transactions - Retrieving all transactions', 'TransactionsController');
+
+    try {
+      const transactions = await this.getTransactions.execute();
+      this.logger.log(`Retrieved ${transactions.length} transactions`, 'TransactionsController');
+      return transactions;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to retrieve transactions: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
   }
 }

@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
 import { CreateTransactionTable1704153600000 } from './database/migrations/1704153600000-CreateTransactionTable';
 import { DatabaseService } from './database/database.service';
+import { LoggingMiddleware } from './middleware/logging.middleware';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -29,12 +30,16 @@ const usePostgres = process.env.DB_MODE === 'postgres';
   ],
   providers: [DatabaseService],
 })
-export class AppModule {
+export class AppModule implements NestModule {
   constructor(private databaseService: DatabaseService) {}
 
   async onModuleInit() {
     if (process.env.DB_MODE === 'postgres') {
       await this.databaseService.runMigrations();
     }
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
   }
 }
