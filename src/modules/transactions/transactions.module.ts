@@ -7,6 +7,7 @@ import { InMemoryTransactionRepository } from '../../infrastructure/persistence/
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { CategoriesModule } from '../categories/categories.module';
+import { AccountsModule } from '../accounts/accounts.module';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -14,6 +15,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
   imports: [
     ...(usePostgres ? [TypeOrmModule.forFeature([TransactionEntity])] : []),
     CategoriesModule,
+    AccountsModule,
   ],
   controllers: [TransactionsController],
   providers: [

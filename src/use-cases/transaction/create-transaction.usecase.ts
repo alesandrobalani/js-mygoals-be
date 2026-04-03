@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
 import { CategoryRepository } from '../../domain/repositories/category.repository';
+import { AccountRepository } from '../../domain/repositories/account.repository';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class CreateTransactionUseCase {
@@ -14,6 +15,8 @@ export class CreateTransactionUseCase {
     private readonly transactionRepository: TransactionRepository,
     @Inject('CategoryRepository')
     private readonly categoryRepository: CategoryRepository,
+    @Inject('AccountRepository')
+    private readonly accountRepository: AccountRepository,
   ) {}
 
   async execute(payload: CreateTransactionDto): Promise<Transaction> {
@@ -25,14 +28,19 @@ export class CreateTransactionUseCase {
       throw new Error(`Category with ID "${payload.categoryId}" not found`);
     }
 
+    const account = await this.accountRepository.findById(payload.accountId);
+    if (!account) {
+      throw new Error(`Account with ID "${payload.accountId}" not found`);
+    }
+
     const transaction = new Transaction(
-        uuidv4(),
+        randomUUID(),
         payload.description,
         payload.amount,
         payload.type,
         category,
         payload.transactionDate,
-        payload.account,
+        account,
         new Date(),
         payload.dueDate !== undefined ? payload.dueDate : payload.transactionDate,
     );

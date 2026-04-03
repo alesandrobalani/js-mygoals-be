@@ -33,7 +33,7 @@ describe('Categories e2e', () => {
       description: 'Categoria criada pelo teste e2e',
     });
     expect(response.body.id).toBeDefined();
-    expect(response.body.createdAt).toBeDefined();
+    expect(response.body.updatedAt).toBeDefined();
 
     const listResponse = await request(app.getHttpServer())
       .get('/categories')

@@ -1,0 +1,11 @@
+Torne a propriedade conta em uma entidade.
+Crie o relacionamento desta entidade com a entidade de transação.
+Crie um controller para o cadatro de contas.
+Ajuste os testes de integração para adicionar o novo comportamento de CRUD para contas.
+Criar os testes unitários para o use case de criar contas.
+Crie os testes end to end e criar os testes end to end para as operações com a entidade de contas.
+Ajuste os arquivos de migration com a alteração da tabela transaction, que possui uma referência para a tabela de conta.
+Ajuste a ordem de execução dos arquivos de migration.
+Para a operação de delete, não pode ser permite o delete de uma conta que esteja vinculada a uma transação.
+Troque a coluna de createdAt por uma coluna updatedAt. Esta coluna deve ser preenchida sempre que haja criação ou alteração da entidade.
+Crie o teste unitário para o use case de update de contas.

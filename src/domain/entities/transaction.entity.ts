@@ -1,5 +1,6 @@
 import { TransactionType } from '../../dto/create-transaction.dto';
 import { Category } from './category.entity';
+import { Account } from './account.entity';
 
 export class Transaction {
   constructor(
@@ -9,8 +10,8 @@ export class Transaction {
     public readonly type: TransactionType,
     public readonly category: Category,
     public readonly transactionDate: Date,
-    public readonly account: string,
-    public readonly createdAt: Date,
+    public readonly account: Account,
+    public readonly updatedAt: Date,
     public readonly dueDate: Date,
   ) {}
 }

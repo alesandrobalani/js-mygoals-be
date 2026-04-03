@@ -2,9 +2,11 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestTransactionsModule } from '../modules/transactions/test-transactions.module';
+import { InMemoryAccountRepository } from '../infrastructure/persistence/in-memory/account.repository';
 
 describe('Transactions integration', () => {
   let app: INestApplication;
+  let accountRepository: InMemoryAccountRepository;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -12,6 +14,7 @@ describe('Transactions integration', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    accountRepository = moduleRef.get(InMemoryAccountRepository);
     await app.init();
   });
 
@@ -20,6 +23,13 @@ describe('Transactions integration', () => {
   });
 
   it('should create and retrieve transactions', async () => {
+    const account = await accountRepository.create({
+      id: 'test-account-1',
+      name: 'Test Account',
+      description: 'Account used for transaction tests',
+      updatedAt: new Date(),
+    });
+
     const createResponse = await request(app.getHttpServer())
       .post('/transactions')
       .send({
@@ -27,8 +37,8 @@ describe('Transactions integration', () => {
         amount: 100,
         type: 'income',
         categoryId: '9',
+        accountId: account.id,
         transactionDate: new Date().toISOString(),
-        account: 'Test Account',
       })
       .expect(201);
 
@@ -41,7 +51,10 @@ describe('Transactions integration', () => {
         name: 'Renda Ativa',
         description: 'Salário, trabalho principal',
       },
-      account: 'Test Account',
+      account: {
+        id: 'test-account-1',
+        name: 'Test Account',
+      },
     });
 
     const findResponse = await request(app.getHttpServer())

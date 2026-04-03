@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { TransactionType } from '../../../dto/create-transaction.dto';
 import { CategoryEntity } from './category.entity';
+import { AccountEntity } from './account.entity';
 
 @Entity('transactions')
 export class TransactionEntity {
@@ -23,17 +24,21 @@ export class TransactionEntity {
   @JoinColumn({ name: 'categoryId' })
   category!: CategoryEntity;
 
-  @Column()
+  @Column('uuid')
   categoryId!: string;
+
+  @ManyToOne(() => AccountEntity)
+  @JoinColumn({ name: 'accountId' })
+  account!: AccountEntity;
+
+  @Column('uuid')
+  accountId!: string;
 
   @Column({ type: 'date' })
   transactionDate!: Date;
 
-  @Column()
-  account!: string;
-
-  @CreateDateColumn()
-  createdAt!: Date;
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @Column({ type: 'date', nullable: true })
   dueDate?: Date;

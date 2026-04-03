@@ -4,12 +4,19 @@ import { CreateTransactionUseCase } from '../../use-cases/transaction/create-tra
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
 import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
 import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-memory/category.repository';
+import { InMemoryAccountRepository } from '../../infrastructure/persistence/in-memory/account.repository';
+import { AccountsController } from '../accounts/accounts.controller';
+import { CreateAccountUseCase } from '../../use-cases/account/create-account.usecase';
+import { GetAccountsUseCase } from '../../use-cases/account/get-accounts.usecase';
+import { UpdateAccountUseCase } from '../../use-cases/account/update-account.usecase';
+import { DeleteAccountUseCase } from '../../use-cases/account/delete-account.usecase';
 
 @Module({
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, AccountsController],
   providers: [
     InMemoryTransactionRepository,
     InMemoryCategoryRepository,
+    InMemoryAccountRepository,
     {
       provide: 'TransactionRepository',
       useExisting: InMemoryTransactionRepository,
@@ -18,8 +25,16 @@ import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-
       provide: 'CategoryRepository',
       useExisting: InMemoryCategoryRepository,
     },
+    {
+      provide: 'AccountRepository',
+      useExisting: InMemoryAccountRepository,
+    },
     CreateTransactionUseCase,
     GetTransactionsUseCase,
+    CreateAccountUseCase,
+    GetAccountsUseCase,
+    UpdateAccountUseCase,
+    DeleteAccountUseCase,
   ],
 })
 export class TestTransactionsModule {}

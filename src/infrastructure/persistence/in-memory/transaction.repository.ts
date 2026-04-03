@@ -14,4 +14,8 @@ export class InMemoryTransactionRepository implements TransactionRepository {
   async findAll(): Promise<Transaction[]> {
     return [...this.transactions];
   }
+
+  async findByAccountId(accountId: string): Promise<Transaction[]> {
+    return this.transactions.filter(transaction => transaction.account.id === accountId);
+  }
 }

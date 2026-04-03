@@ -16,7 +16,7 @@ describe('CreateCategoryUseCase', () => {
       description: 'Descrição de teste',
     });
     expect(category.id).toBeDefined();
-    expect(category.createdAt).toBeInstanceOf(Date);
+    expect(category.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should not create a category with a duplicate name', async () => {

@@ -21,7 +21,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
     entity.id = category.id;
     entity.name = category.name;
     entity.description = category.description;
-    entity.createdAt = category.createdAt || new Date();
+    entity.updatedAt = category.updatedAt || new Date();
 
     const savedEntity = await this.categoryRepository.save(entity);
 
@@ -29,7 +29,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       savedEntity.id,
       savedEntity.name,
       savedEntity.description,
-      savedEntity.createdAt,
+      savedEntity.updatedAt,
     );
   }
 
@@ -41,7 +41,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.id,
       entity.name,
       entity.description,
-      entity.createdAt,
+      entity.updatedAt,
     ));
   }
 
@@ -55,7 +55,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.id,
       entity.name,
       entity.description,
-      entity.createdAt,
+      entity.updatedAt,
     );
   }
 
@@ -69,7 +69,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.id,
       entity.name,
       entity.description,
-      entity.createdAt,
+      entity.updatedAt,
     );
   }
 }

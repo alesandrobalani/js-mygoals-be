@@ -33,7 +33,7 @@ describe('Categories integration', () => {
       description: 'Categoria criada durante o teste de integração',
     });
     expect(createResponse.body.id).toBeDefined();
-    expect(createResponse.body.createdAt).toBeDefined();
+    expect(createResponse.body.updatedAt).toBeDefined();
 
     const listResponse = await request(app.getHttpServer())
       .get('/categories')

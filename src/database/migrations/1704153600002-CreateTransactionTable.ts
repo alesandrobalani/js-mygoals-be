@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTransactionTable1704153600001 implements MigrationInterface {
+export class CreateTransactionTable1704153600002 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -36,18 +36,17 @@ export class CreateTransactionTable1704153600001 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'accountId',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
             name: 'transactionDate',
             type: 'date',
             isNullable: false,
           },
           {
-            name: 'account',
-            type: 'varchar',
-            length: '255',
-            isNullable: false,
-          },
-          {
-            name: 'createdAt',
+            name: 'updatedAt',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
             isNullable: false,
@@ -63,7 +62,11 @@ export class CreateTransactionTable1704153600001 implements MigrationInterface {
             columnNames: ['categoryId'],
             referencedTableName: 'categories',
             referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
+          },
+          {
+            columnNames: ['accountId'],
+            referencedTableName: 'accounts',
+            referencedColumnNames: ['id'],
           },
         ],
       }),

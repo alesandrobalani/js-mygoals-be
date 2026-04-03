@@ -1,4 +1,4 @@
-export class Category {
+export class Account {
   constructor(
     readonly id: string,
     readonly name: string,

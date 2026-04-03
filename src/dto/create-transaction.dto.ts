@@ -27,14 +27,14 @@ export class CreateTransactionDto {
   categoryId!: string;
 
   @Expose()
+  @IsString()
+  @IsNotEmpty()
+  accountId!: string;
+
+  @Expose()
   transactionDate!: Date;
 
   @Expose()
   @IsOptional()
   dueDate?: Date;
-
-  @Expose()
-  @IsString()
-  @IsNotEmpty()
-  account!: string;
 }

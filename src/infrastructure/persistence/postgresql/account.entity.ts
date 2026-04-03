@@ -1,8 +1,8 @@
 import { Entity, PrimaryColumn, Column, UpdateDateColumn } from 'typeorm';
 
-@Entity('categories')
-export class CategoryEntity {
-  @PrimaryColumn()
+@Entity('accounts')
+export class AccountEntity {
+  @PrimaryColumn('uuid')
   id!: string;
 
   @Column({ unique: true })

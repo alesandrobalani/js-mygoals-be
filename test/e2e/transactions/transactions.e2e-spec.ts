@@ -20,6 +20,17 @@ describe('Transactions e2e', () => {
   });
 
   it('/transactions (POST) then (GET)', async () => {
+    // First create an account
+    const accountResponse = await request(app.getHttpServer())
+      .post('/accounts')
+      .send({
+        name: 'E2E Account',
+        description: 'Account for e2e transaction test',
+      })
+      .expect(201);
+
+    const accountId = accountResponse.body.id;
+
     await request(app.getHttpServer())
       .post('/transactions')
       .send({
@@ -27,12 +38,25 @@ describe('Transactions e2e', () => {
         amount: 50,
         type: 'expense',
         categoryId: '5',
+        accountId: accountId,
         transactionDate: new Date().toISOString(),
-        account: 'E2E Account',
       })
       .expect(201);
 
     const response = await request(app.getHttpServer()).get('/transactions').expect(200);
     expect(response.body.length).toBeGreaterThanOrEqual(1);
+    expect(response.body[response.body.length - 1]).toMatchObject({
+      description: 'E2E Test',
+      amount: 50,
+      type: 'expense',
+      category: {
+        id: '5',
+        name: 'Alimentação',
+      },
+      account: {
+        id: accountId,
+        name: 'E2E Account',
+      },
+    });
   });
 });
