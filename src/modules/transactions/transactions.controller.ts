@@ -13,11 +13,18 @@ export class TransactionsController {
   ) {}
 
   @Post()
-  async create(@Body() payload: CreateTransactionDto) {
+  async create(@Body() payload: any) {
     this.logger.log(`POST /transactions - Creating transaction: ${payload.description}`, 'TransactionsController');
 
+    // Convert date strings to Date objects
+    const processedPayload = {
+      ...payload,
+      transactionDate: new Date(payload.transactionDate),
+      dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+    };
+
     try {
-      const result = await this.createTransaction.execute(payload);
+      const result = await this.createTransaction.execute(processedPayload);
       this.logger.log(`Transaction created successfully: ${result.id}`, 'TransactionsController');
       return result;
     } catch (error) {

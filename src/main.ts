@@ -14,7 +14,14 @@ async function bootstrap() {
     },
   });
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+  app.useGlobalPipes(new ValidationPipe({ 
+    whitelist: true, 
+    forbidNonWhitelisted: true,
+    transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
+  }));
 
   logger.info(`Application starting in ${process.env.NODE_ENV || 'development'} mode`, { context: 'Bootstrap' });
   logger.info(`Database mode: ${process.env.DB_MODE || 'memory'}`, { context: 'Bootstrap' });

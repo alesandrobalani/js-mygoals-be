@@ -7,19 +7,29 @@ import { InMemoryTransactionRepository } from '../../infrastructure/persistence/
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 
+const usePostgres = process.env.DB_MODE === 'postgres';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([TransactionEntity])],
+  imports: [
+    ...(usePostgres ? [TypeOrmModule.forFeature([TransactionEntity])] : []),
+  ],
   controllers: [TransactionsController],
   providers: [
     InMemoryTransactionRepository,
-    PostgreSQLTransactionRepository,
+    ...(usePostgres ? [PostgreSQLTransactionRepository] : []),
     {
       provide: 'TransactionRepository',
-      useFactory: (inMemoryRepo: InMemoryTransactionRepository, pgRepo: PostgreSQLTransactionRepository) => {
+      useFactory: (
+        inMemoryRepo: InMemoryTransactionRepository, 
+        pgRepo?: PostgreSQLTransactionRepository
+      ) => {
         const dbMode = process.env.DB_MODE || 'memory';
         return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
       },
-      inject: [InMemoryTransactionRepository, PostgreSQLTransactionRepository],
+      inject: [
+        InMemoryTransactionRepository, 
+        ...(usePostgres ? [PostgreSQLTransactionRepository] : [])
+      ],
     },
     CreateTransactionUseCase,
     GetTransactionsUseCase,

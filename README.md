@@ -39,6 +39,57 @@ API padrão: `http://localhost:3000`
 - POST `/transactions` - cria transação (body: description, amount, type, category, transactionDate, account, dueDate?)
 - GET `/transactions` - lista transações
 
+## Testes com cURL
+
+### Criar uma transação de receita
+```bash
+curl -X POST http://localhost:3000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Salário mensal",
+    "amount": 5000.00,
+    "type": "income",
+    "category": "Renda Ativa",
+    "transactionDate": "2024-01-15",
+    "account": "Conta Corrente",
+    "dueDate": "2024-01-15"
+  }'
+```
+
+### Criar uma transação de despesa
+```bash
+curl -X POST http://localhost:3000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Conta de luz",
+    "amount": 150.50,
+    "type": "expense",
+    "category": "Serviços públicos",
+    "transactionDate": "2024-01-10",
+    "account": "Conta Corrente"
+  }'
+```
+
+### Listar todas as transações
+```bash
+curl -X GET http://localhost:3000/transactions
+```
+
+### Criar transação com data de vencimento diferente
+```bash
+curl -X POST http://localhost:3000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Cartão de crédito",
+    "amount": 200.00,
+    "type": "expense",
+    "category": "Habitação",
+    "transactionDate": "2024-01-01",
+    "account": "Cartão Visa",
+    "dueDate": "2024-01-15"
+  }'
+```
+
 ## Observações
 - Repositório em memória para protótipo.
 - Compatível com Node.js >= 18 (testado com 18.20.8).

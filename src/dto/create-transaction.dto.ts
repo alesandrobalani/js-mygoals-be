@@ -1,4 +1,5 @@
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Expose } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export enum TransactionType {
   INCOME = 'income',
@@ -20,28 +21,33 @@ export enum TransactionCategory {
 }
 
 export class CreateTransactionDto {
+  @Expose()
   @IsString()
   @IsNotEmpty()
-  readonly description!: string;
+  description!: string;
 
+  @Expose()
   @IsNumber()
   @Min(0.01)
-  readonly amount!: number;
+  amount!: number;
 
+  @Expose()
   @IsEnum(TransactionType)
-  readonly type!: TransactionType;
+  type!: TransactionType;
 
+  @Expose()
   @IsEnum(TransactionCategory)
-  readonly category!: TransactionCategory;
+  category!: TransactionCategory;
 
-  @IsDate()
-  readonly transactionDate!: Date;
+  @Expose()
+  transactionDate!: Date;
 
+  @Expose()
   @IsOptional()
-  @IsDate()
-  readonly dueDate?: Date;
+  dueDate?: Date;
 
+  @Expose()
   @IsString()
   @IsNotEmpty()
-  readonly account!: string;
+  account!: string;
 }
