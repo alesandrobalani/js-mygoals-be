@@ -1,14 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../../src/app.module';
+import { TestTransactionsModule } from '../modules/transactions/test-transactions.module';
 
 describe('Transactions integration', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [TestTransactionsModule],
     }).compile();
 
     app = moduleRef.createNestApplication();

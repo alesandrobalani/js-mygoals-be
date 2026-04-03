@@ -1,0 +1,3 @@
+Criar uma versão de repositório para armazenar os dados da transação em um banco de dados postgrees.
+
+Os testes devem continuar sendo gravados em memória.
