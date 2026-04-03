@@ -44,3 +44,19 @@ API padrão: `http://localhost:3000`
 - Compatível com Node.js >= 18 (testado com 18.20.8).
 - Zero vulnerabilidades de segurança!
 - Usa NestJS 11.1.18, Jest 29.7.0, TypeScript 5.4.5 para máxima segurança e performance.
+
+## Docker (desenvolvimento)
+1. `docker compose up --build`
+2. A API sobe em `http://localhost:3000`
+
+### PostgreSQL via Docker
+- `DB_MODE=postgres`
+- `DB_HOST=postgres`
+- `DB_PORT=5432`
+- `DB_USERNAME=postgres`
+- `DB_PASSWORD=password`
+- `DB_DATABASE=js_mygoals_be`
+
+## Executando testes e2e
+- Memória: `npm run test:e2e:memory`
+- PostgreSQL: `npm run test:e2e:postgres` (necessita `docker compose up` )

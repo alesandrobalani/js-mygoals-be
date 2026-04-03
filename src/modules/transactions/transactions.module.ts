@@ -16,8 +16,8 @@ import { TransactionEntity } from '../../infrastructure/persistence/postgresql/t
     {
       provide: 'TransactionRepository',
       useFactory: (inMemoryRepo: InMemoryTransactionRepository, pgRepo: PostgreSQLTransactionRepository) => {
-        // Use PostgreSQL in production, in-memory for tests
-        return process.env.NODE_ENV === 'test' ? inMemoryRepo : pgRepo;
+        const dbMode = process.env.DB_MODE || 'memory';
+        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
       },
       inject: [InMemoryTransactionRepository, PostgreSQLTransactionRepository],
     },

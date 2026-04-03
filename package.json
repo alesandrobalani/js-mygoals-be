@@ -13,7 +13,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:integration": "jest --config jest.integration.config.js",
-    "test:e2e": "jest --config test/jest-e2e.json"
+    "test:e2e": "jest --config test/jest-e2e.json",
+    "test:e2e:memory": "cross-env DB_MODE=memory jest --config test/jest-e2e.json",
+    "test:e2e:postgres": "cross-env DB_MODE=postgres jest --config test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -39,6 +41,7 @@
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",

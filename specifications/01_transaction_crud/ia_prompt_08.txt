@@ -1,0 +1,3 @@
+Crie a estrutura em docker para poder ser utilizado para o ambiente de desenvolvimento.
+Esta estrutura deve conter o postgrees.
+Deve ser possível executar o teste end to end em memoria ou no postgrees.
