@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
-import { TransactionType, TransactionCategory } from '../../../dto/create-transaction.dto';
+import { Entity, Column, PrimaryColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { TransactionType } from '../../../dto/create-transaction.dto';
+import { CategoryEntity } from './category.entity';
 
 @Entity('transactions')
 export class TransactionEntity {
@@ -18,11 +19,12 @@ export class TransactionEntity {
   })
   type!: TransactionType;
 
-  @Column({
-    type: 'enum',
-    enum: TransactionCategory,
-  })
-  category!: TransactionCategory;
+  @ManyToOne(() => CategoryEntity)
+  @JoinColumn({ name: 'categoryId' })
+  category!: CategoryEntity;
+
+  @Column()
+  categoryId!: string;
 
   @Column({ type: 'date' })
   transactionDate!: Date;

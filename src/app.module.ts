@@ -1,8 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
-import { CreateTransactionTable1704153600000 } from './database/migrations/1704153600000-CreateTransactionTable';
+import { CategoryEntity } from './infrastructure/persistence/postgresql/category.entity';
+import { CreateCategoryTable1704153600000 } from './database/migrations/1704153600000-CreateCategoryTable';
+import { CreateTransactionTable1704153600001 } from './database/migrations/1704153600001-CreateTransactionTable';
+import { SeedDefaultCategories1704153600002 } from './database/migrations/1704153600002-SeedDefaultCategories';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 
@@ -19,14 +23,15 @@ const usePostgres = process.env.DB_MODE === 'postgres';
             username: process.env.DB_USERNAME || 'postgres',
             password: process.env.DB_PASSWORD || 'password',
             database: process.env.DB_DATABASE || 'js_mygoals_be',
-            entities: [TransactionEntity],
-            migrations: [CreateTransactionTable1704153600000],
+            entities: [TransactionEntity, CategoryEntity],
+            migrations: [CreateCategoryTable1704153600000, CreateTransactionTable1704153600001, SeedDefaultCategories1704153600002],
             migrationsRun: false, // Executar manualmente via DatabaseService
             synchronize: false,
           }),
         ]
       : []),
     TransactionsModule,
+    CategoriesModule,
   ],
   providers: [DatabaseService],
 })

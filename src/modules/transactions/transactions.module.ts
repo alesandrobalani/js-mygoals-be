@@ -6,12 +6,14 @@ import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transact
 import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
+import { CategoriesModule } from '../categories/categories.module';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
 @Module({
   imports: [
     ...(usePostgres ? [TypeOrmModule.forFeature([TransactionEntity])] : []),
+    CategoriesModule,
   ],
   controllers: [TransactionsController],
   providers: [

@@ -6,20 +6,6 @@ export enum TransactionType {
   EXPENSE = 'expense',
 }
 
-export enum TransactionCategory {
-  HABITACAO = 'Habitação',
-  SERVICOS_PUBLICOS = 'Serviços públicos',
-  EDUCACAO = 'Educação',
-  SAUDE = 'Saúde',
-  ALIMENTACAO = 'Alimentação',
-  TRANSPORTE = 'Transporte',
-  LAZER = 'Lazer',
-  CUIDADOS_PESSOAIS = 'Cuidados pessoais',
-  RENDA_ATIVA = 'Renda Ativa',
-  RENDA_EXTRA = 'Renda extra',
-  RENDA_PASSIVA = 'Renda passiva',
-}
-
 export class CreateTransactionDto {
   @Expose()
   @IsString()
@@ -36,8 +22,9 @@ export class CreateTransactionDto {
   type!: TransactionType;
 
   @Expose()
-  @IsEnum(TransactionCategory)
-  category!: TransactionCategory;
+  @IsString()
+  @IsNotEmpty()
+  categoryId!: string;
 
   @Expose()
   transactionDate!: Date;

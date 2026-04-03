@@ -1,0 +1,3 @@
+Torne a propriedade categoria em uma entidade.
+Crie o relacionamento desta entidade com a entidade de transação.
+Crie um controller para o cadatro de categorias.

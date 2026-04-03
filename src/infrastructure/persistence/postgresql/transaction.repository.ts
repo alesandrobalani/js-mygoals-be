@@ -22,7 +22,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     entity.description = transaction.description;
     entity.amount = transaction.amount;
     entity.type = transaction.type;
-    entity.category = transaction.category;
+    entity.categoryId = transaction.category.id;
     entity.transactionDate = transaction.transactionDate;
     entity.account = transaction.account;
     entity.dueDate = transaction.dueDate;
@@ -54,7 +54,9 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     this.logger.debug('Retrieving all transactions from database', 'PostgreSQLTransactionRepository');
 
     try {
-      const entities = await this.transactionRepository.find();
+      const entities = await this.transactionRepository.find({
+        relations: ['category'],
+      });
       this.logger.debug(`Retrieved ${entities.length} transactions from database`, 'PostgreSQLTransactionRepository');
 
       return entities.map(entity => ({
@@ -80,7 +82,10 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     this.logger.debug(`Retrieving transaction by ID: ${id}`, 'PostgreSQLTransactionRepository');
 
     try {
-      const entity = await this.transactionRepository.findOne({ where: { id } });
+      const entity = await this.transactionRepository.findOne({ 
+        where: { id },
+        relations: ['category'],
+      });
       if (!entity) {
         this.logger.debug(`Transaction not found: ${id}`, 'PostgreSQLTransactionRepository');
         return null;

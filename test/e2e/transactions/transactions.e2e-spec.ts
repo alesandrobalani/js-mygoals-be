@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { TestTransactionsModule } from '../src/modules/transactions/test-transactions.module';
+import { TestTransactionsModule } from '../../../src/modules/transactions/test-transactions.module';
 
-describe('App e2e', () => {
+describe('Transactions e2e', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -26,7 +26,7 @@ describe('App e2e', () => {
         description: 'E2E Test',
         amount: 50,
         type: 'expense',
-        category: 'Alimentação',
+        categoryId: '5',
         transactionDate: new Date().toISOString(),
         account: 'E2E Account',
       })

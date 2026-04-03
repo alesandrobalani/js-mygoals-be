@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
+import { CategoryRepository } from '../../domain/repositories/category.repository';
 
 @Injectable()
 export class CreateTransactionUseCase {
@@ -11,17 +12,25 @@ export class CreateTransactionUseCase {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: TransactionRepository,
+    @Inject('CategoryRepository')
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
   async execute(payload: CreateTransactionDto): Promise<Transaction> {
     this.logger.log(`Creating transaction: ${payload.description} - ${payload.amount} ${payload.type}`, 'CreateTransactionUseCase');
+
+    // Find the category
+    const category = await this.categoryRepository.findById(payload.categoryId);
+    if (!category) {
+      throw new Error(`Category with ID "${payload.categoryId}" not found`);
+    }
 
     const transaction = new Transaction(
         uuidv4(),
         payload.description,
         payload.amount,
         payload.type,
-        payload.category,
+        category,
         payload.transactionDate,
         payload.account,
         new Date(),

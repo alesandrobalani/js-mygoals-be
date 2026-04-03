@@ -36,8 +36,10 @@ API padrão: `http://localhost:3000`
 - Se `dueDate` não for informado, será definido como `transactionDate`
 
 ## Endpoints
-- POST `/transactions` - cria transação (body: description, amount, type, category, transactionDate, account, dueDate?)
+- POST `/transactions` - cria transação (body: description, amount, type, categoryId, transactionDate, account, dueDate?)
 - GET `/transactions` - lista transações
+- POST `/categories` - cria categoria (body: name, description?)
+- GET `/categories` - lista categorias
 
 ## Testes com cURL
 
@@ -49,7 +51,7 @@ curl -X POST http://localhost:3000/transactions \
     "description": "Salário mensal",
     "amount": 5000.00,
     "type": "income",
-    "category": "Renda Ativa",
+    "categoryId": "9",
     "transactionDate": "2024-01-15",
     "account": "Conta Corrente",
     "dueDate": "2024-01-15"
@@ -64,7 +66,7 @@ curl -X POST http://localhost:3000/transactions \
     "description": "Conta de luz",
     "amount": 150.50,
     "type": "expense",
-    "category": "Serviços públicos",
+    "categoryId": "2",
     "transactionDate": "2024-01-10",
     "account": "Conta Corrente"
   }'
@@ -83,10 +85,25 @@ curl -X POST http://localhost:3000/transactions \
     "description": "Cartão de crédito",
     "amount": 200.00,
     "type": "expense",
-    "category": "Habitação",
+    "categoryId": "1",
     "transactionDate": "2024-01-01",
     "account": "Cartão Visa",
     "dueDate": "2024-01-15"
+  }'
+```
+
+### Listar todas as categorias
+```bash
+curl -X GET http://localhost:3000/categories
+```
+
+### Criar uma nova categoria
+```bash
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Investimentos",
+    "description": "Aplicações financeiras e investimentos"
   }'
 ```
 

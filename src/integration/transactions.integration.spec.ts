@@ -26,7 +26,7 @@ describe('Transactions integration', () => {
         description: 'Test Income',
         amount: 100,
         type: 'income',
-        category: 'Renda Ativa',
+        categoryId: '9',
         transactionDate: new Date().toISOString(),
         account: 'Test Account',
       })
@@ -36,7 +36,11 @@ describe('Transactions integration', () => {
       description: 'Test Income',
       amount: 100,
       type: 'income',
-      category: 'Renda Ativa',
+      category: {
+        id: '9',
+        name: 'Renda Ativa',
+        description: 'Salário, trabalho principal',
+      },
       account: 'Test Account',
     });
 

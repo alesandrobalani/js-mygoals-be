@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTransactionTable1704153600000 implements MigrationInterface {
+export class CreateTransactionTable1704153600001 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -31,21 +31,8 @@ export class CreateTransactionTable1704153600000 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'category',
-            type: 'enum',
-            enum: [
-              'HABITACAO',
-              'SERVICOS_PUBLICOS',
-              'EDUCACAO',
-              'SAUDE',
-              'ALIMENTACAO',
-              'TRANSPORTE',
-              'LAZER',
-              'CUIDADOS_PESSOAIS',
-              'RENDA_ATIVA',
-              'RENDA_EXTRA',
-              'RENDA_PASSIVA',
-            ],
+            name: 'categoryId',
+            type: 'uuid',
             isNullable: false,
           },
           {
@@ -69,6 +56,14 @@ export class CreateTransactionTable1704153600000 implements MigrationInterface {
             name: 'dueDate',
             type: 'date',
             isNullable: false,
+          },
+        ],
+        foreignKeys: [
+          {
+            columnNames: ['categoryId'],
+            referencedTableName: 'categories',
+            referencedColumnNames: ['id'],
+            onDelete: 'CASCADE',
           },
         ],
       }),
