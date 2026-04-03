@@ -1,6 +1,6 @@
-import { InMemoryTransactionRepository } from '../../../infrastructure/persistence/in-memory/transaction.repository';
+import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
 import { CreateTransactionUseCase } from './create-transaction.usecase';
-import { TransactionType } from '../../../dto/create-transaction.dto';
+import { TransactionType } from '../../dto/create-transaction.dto';
 
 describe('CreateTransactionUseCase', () => {
   it('should create a transaction', async () => {
