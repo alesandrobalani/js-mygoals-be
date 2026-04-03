@@ -26,7 +26,9 @@ describe('App e2e', () => {
         description: 'E2E Test',
         amount: 50,
         type: 'expense',
-        category: 'Food',
+        category: 'Alimentação',
+        transactionDate: new Date().toISOString(),
+        account: 'E2E Account',
       })
       .expect(201);
 

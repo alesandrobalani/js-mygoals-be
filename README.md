@@ -22,8 +22,17 @@ API padrão: `http://localhost:3000`
 - Testes de integração: `npm run test:integration`
 - Testes e2e: `npm run test:e2e`
 
+## Campos da Transação
+- **description**: string (obrigatório)
+- **amount**: number > 0 (obrigatório)
+- **type**: 'income' | 'expense' (obrigatório)
+- **category**: enum (Habitação, Serviços públicos, Educação, Saúde, Alimentação, Transporte, Lazer, Cuidados pessoais, Renda Ativa, Renda extra, Renda passiva) (obrigatório)
+- **transactionDate**: Date (obrigatório)
+- **account**: string (obrigatório)
+- **dueDate**: Date (opcional) - se informado, será usado como data da transação
+
 ## Endpoints
-- POST `/transactions` - cria transação
+- POST `/transactions` - cria transação (body: description, amount, type, category, transactionDate, account, dueDate?)
 - GET `/transactions` - lista transações
 
 ## Observações

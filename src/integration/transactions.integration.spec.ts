@@ -26,7 +26,9 @@ describe('Transactions integration', () => {
         description: 'Test Income',
         amount: 100,
         type: 'income',
-        category: 'Test',
+        category: 'Renda Ativa',
+        transactionDate: new Date().toISOString(),
+        account: 'Test Account',
       })
       .expect(201);
 
@@ -34,7 +36,8 @@ describe('Transactions integration', () => {
       description: 'Test Income',
       amount: 100,
       type: 'income',
-      category: 'Test',
+      category: 'Renda Ativa',
+      account: 'Test Account',
     });
 
     const findResponse = await request(app.getHttpServer())

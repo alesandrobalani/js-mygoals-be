@@ -9,13 +9,17 @@ export class InMemoryTransactionRepository implements TransactionRepository {
   private transactions: Transaction[] = [];
 
   async create(payload: CreateTransactionDto): Promise<Transaction> {
+    const transactionDate = payload.dueDate || payload.transactionDate;
     const transaction = new Transaction(
       uuidv4(),
       payload.description,
       payload.amount,
       payload.type,
       payload.category,
+      transactionDate,
+      payload.account,
       new Date(),
+      payload.dueDate,
     );
     this.transactions.push(transaction);
     return transaction;

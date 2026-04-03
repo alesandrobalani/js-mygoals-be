@@ -12,3 +12,6 @@ Este se trata de um projeto de backend, cuja a interface de comunicação será 
 
 Este projeto deve ser criado na linguagem JS.
 
+A entidade deve ser armazenada em uma tabela no postgrees.
+
+Todo o ambiente de desenvolvimento deve ser executado via docker.
