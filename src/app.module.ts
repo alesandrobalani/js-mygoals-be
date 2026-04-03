@@ -10,7 +10,6 @@ import { CreateCategoryTable1704153600000 } from './database/migrations/17041536
 import { CreateAccountTable1704153600001 } from './database/migrations/1704153600001-CreateAccountTable';
 import { CreateTransactionTable1704153600002 } from './database/migrations/1704153600002-CreateTransactionTable';
 import { SeedDefaultCategories1704153600003 } from './database/migrations/1704153600003-SeedDefaultCategories';
-import { RenameCreatedAtToUpdatedAt1775257245424 } from './database/migrations/1775257245424-RenameCreatedAtToUpdatedAt';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 
@@ -33,7 +32,6 @@ const usePostgres = process.env.DB_MODE === 'postgres';
               CreateAccountTable1704153600001,
               CreateTransactionTable1704153600002,
               SeedDefaultCategories1704153600003,
-              RenameCreatedAtToUpdatedAt1775257245424,
             ],
             migrationsRun: false, // Executar manualmente via DatabaseService
             synchronize: false,
