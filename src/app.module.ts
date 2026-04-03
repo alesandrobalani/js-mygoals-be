@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
+import { DatabaseModule } from './modules/database/database.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
 import { CategoryEntity } from './infrastructure/persistence/postgresql/category.entity';
 import { AccountEntity } from './infrastructure/persistence/postgresql/account.entity';
@@ -38,6 +39,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
           }),
         ]
       : []),
+    DatabaseModule,
     TransactionsModule,
     CategoriesModule,
     AccountsModule,
