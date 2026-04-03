@@ -17,6 +17,11 @@ API backend em NestJS com Clean Architecture para gerenciamento de transações 
 
 API padrão: `http://localhost:3000`
 
+## Testes
+- Testes unitários: `npm test`
+- Testes de integração: `npm run test:integration`
+- Testes e2e: `npm run test:e2e`
+
 ## Endpoints
 - POST `/transactions` - cria transação
 - GET `/transactions` - lista transações
