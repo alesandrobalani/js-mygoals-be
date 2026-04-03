@@ -2,6 +2,6 @@ import { Transaction } from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 
 export interface TransactionRepository {
-  create(transaction: CreateTransactionDto): Promise<Transaction>;
+  create(transaction: Transaction): Promise<Transaction>;
   findAll(): Promise<Transaction[]>;
 }

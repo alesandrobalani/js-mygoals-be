@@ -8,6 +8,6 @@ export class Transaction {
     public readonly transactionDate: Date,
     public readonly account: string,
     public readonly createdAt: Date,
-    public readonly dueDate?: Date,
+    public readonly dueDate: Date,
   ) {}
 }

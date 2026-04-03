@@ -29,7 +29,11 @@ API padrão: `http://localhost:3000`
 - **category**: enum (Habitação, Serviços públicos, Educação, Saúde, Alimentação, Transporte, Lazer, Cuidados pessoais, Renda Ativa, Renda extra, Renda passiva) (obrigatório)
 - **transactionDate**: Date (obrigatório)
 - **account**: string (obrigatório)
-- **dueDate**: Date (opcional) - se informado, será usado como data da transação
+- **dueDate**: Date (opcional) - se informado, será usado como data da transação; se não informado, será igual à transactionDate
+
+## Regras de Negócio
+- Se `dueDate` for informado, `transactionDate` será definido como `dueDate`
+- Se `dueDate` não for informado, será definido como `transactionDate`
 
 ## Endpoints
 - POST `/transactions` - cria transação (body: description, amount, type, category, transactionDate, account, dueDate?)
@@ -37,4 +41,5 @@ API padrão: `http://localhost:3000`
 
 ## Observações
 - Repositório em memória para protótipo.
-- Atualizar Node para >= 18 para melhor compatibilidade com Jest e ferramentas modernas.
+- Compatível com Node.js >= 12 (testado com 13.5.0).
+- Para Node.js >= 14, pode usar versões mais recentes das dependências.

@@ -1,0 +1,13 @@
+Estes são os critérios de aceite para a criação de um transação.
+
+1.
+Dado que o usuário informe todos os dados da transação, inclusive a data de vencimento
+quando solicitada a criação da transação
+deve ser criada a transação com o preenchimento de todos os seus respectivos campos.
+
+2.
+Dado que o usuário não informe a data de vencimento
+quando solicitada a criação da transação
+deve ser criada a transação alimentando os respectivos campos, e atribuindo a data de vencimento com a mesma data da transação.
+
+Ajuste os códigos para atender aos critérios.

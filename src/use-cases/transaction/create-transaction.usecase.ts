@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
@@ -11,6 +12,17 @@ export class CreateTransactionUseCase {
   ) {}
 
   async execute(payload: CreateTransactionDto): Promise<Transaction> {
-    return this.transactionRepository.create(payload);
+    const transaction = new Transaction(      
+        uuidv4(),
+        payload.description,
+        payload.amount,
+        payload.type,
+        payload.category,
+        payload.transactionDate,
+        payload.account,
+        new Date(),
+        payload.dueDate !== undefined ? payload.dueDate : payload.transactionDate,
+    );
+    return this.transactionRepository.create(transaction);
   }
 }
