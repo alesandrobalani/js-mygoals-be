@@ -1,0 +1,2 @@
+Crie uma estrutura de migration para a criação e manutenção da estrutura de dados do banco de dados.
+O migration deve ser executado na subida da aplicação.

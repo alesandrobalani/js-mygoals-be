@@ -60,3 +60,13 @@ API padrão: `http://localhost:3000`
 ## Executando testes e2e
 - Memória: `npm run test:e2e:memory`
 - PostgreSQL: `npm run test:e2e:postgres` (necessita `docker compose up` )
+
+## Migrations
+- Migrations executam automaticamente na inicialização quando `DB_MODE=postgres`
+- Primeira migração: `1704153600000-CreateTransactionTable.ts`
+  - Cria tabela `transactions` com todas as colunas
+  - Enums para `type` (income/expense) e `category`
+- Para reverter manualmente (dev):
+  ```bash
+  npx typeorm migration:revert -d dist/database/database.config.js
+  ```

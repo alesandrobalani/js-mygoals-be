@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
+import { CreateTransactionTable1704153600000 } from './database/migrations/1704153600000-CreateTransactionTable';
+import { DatabaseService } from './database/database.service';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -17,11 +19,22 @@ const usePostgres = process.env.DB_MODE === 'postgres';
             password: process.env.DB_PASSWORD || 'password',
             database: process.env.DB_DATABASE || 'js_mygoals_be',
             entities: [TransactionEntity],
-            synchronize: true, // Para desenvolvimento; em produção, use migrations
+            migrations: [CreateTransactionTable1704153600000],
+            migrationsRun: false, // Executar manualmente via DatabaseService
+            synchronize: false,
           }),
         ]
       : []),
     TransactionsModule,
   ],
+  providers: [DatabaseService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private databaseService: DatabaseService) {}
+
+  async onModuleInit() {
+    if (process.env.DB_MODE === 'postgres') {
+      await this.databaseService.runMigrations();
+    }
+  }
+}
