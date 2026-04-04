@@ -25,7 +25,7 @@ export class OptimizeTransactionTable1704153600005 implements MigrationInterface
     await queryRunner.query(`
       CREATE TABLE transactions_partitioned (
         id UUID PRIMARY KEY,
-        description VARCHAR(255) NOT NULL,
+        description VARCHAR(255),
         amount NUMERIC(10,2) NOT NULL,
         type VARCHAR(50) NOT NULL CHECK (type IN ('income', 'expense')),
         categoryId UUID NOT NULL,
@@ -103,7 +103,7 @@ export class OptimizeTransactionTable1704153600005 implements MigrationInterface
     await queryRunner.query(`
       CREATE TABLE transactions (
         id UUID PRIMARY KEY,
-        description VARCHAR(255) NOT NULL,
+        description VARCHAR(255),
         amount NUMERIC(10,2) NOT NULL,
         type VARCHAR(50) NOT NULL CHECK (type IN ('income', 'expense')),
         categoryId UUID NOT NULL,

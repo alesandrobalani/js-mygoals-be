@@ -22,7 +22,7 @@ API padrão: `http://localhost:3000`
 - Testes de integração: `npm run test:integration`
 
 ## Campos da Transação
-- **description**: string (obrigatório)
+- **description**: string (opcional)
 - **amount**: number > 0 (obrigatório)
 - **type**: 'income' | 'expense' (obrigatório)
 - **categoryId**: string (obrigatório)
@@ -38,7 +38,7 @@ API padrão: `http://localhost:3000`
 - Não é possível remover um item de transação se houver transações associadas a ele
 
 ## Endpoints
-- POST `/transactions` - cria transação (body: description, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
+- POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
 - GET `/transactions` - lista transações
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias
@@ -73,7 +73,6 @@ curl -X POST http://localhost:3000/transactions \
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "description": "Conta de luz",
     "amount": 150.50,
     "type": "expense",
     "categoryId": "2",
@@ -201,6 +200,8 @@ curl -X DELETE http://localhost:3000/transaction-items/1
 - Sexta migração: `1704153600005-OptimizeTransactionTable.ts`
   - Converte tabela `transactions` para particionada por ano (usando `dueDate`)
   - Cria índices de consulta por `transactionItemId`, `accountId`, `categoryId` e composto `(dueDate, type)`
+- Sétima migração: `1704153600006-MakeTransactionDescriptionOptional.ts`
+  - Torna o campo `description` da tabela `transactions` opcional (nullable)
 - Para reverter manualmente (dev):
   ```bash
   npx typeorm migration:revert -d dist/database/database.config.js

@@ -1,0 +1,2 @@
+Ajuste para que o campo de descrição da transação seja opcional.
+Crie um teste unitário contemplando este requisito.

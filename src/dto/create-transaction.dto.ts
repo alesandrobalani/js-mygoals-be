@@ -8,9 +8,9 @@ export enum TransactionType {
 
 export class CreateTransactionDto {
   @Expose()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  description!: string;
+  description?: string;
 
   @Expose()
   @IsNumber()

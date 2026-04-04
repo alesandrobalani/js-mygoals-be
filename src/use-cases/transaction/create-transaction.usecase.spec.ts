@@ -119,4 +119,59 @@ describe('CreateTransactionUseCase', () => {
     expect(transaction.id).toBeDefined();
     expect(transaction.updatedAt).toBeInstanceOf(Date);
   });
+
+  it('should create a transaction without description', async () => {
+    const transactionRepository = new InMemoryTransactionRepository();
+    const transactionItemRepository = new InMemoryTransactionItemRepository();
+    const categoryRepository = new InMemoryCategoryRepository();
+    const accountRepository = new InMemoryAccountRepository();
+    const useCase = new CreateTransactionUseCase(
+      transactionRepository as any,
+      categoryRepository as any,
+      accountRepository as any,
+      transactionItemRepository as any,
+    );
+
+    const transactionDate = new Date('2024-12-01');
+
+    const account = await accountRepository.create({
+      id: 'account-3',
+      name: 'Savings Account',
+      description: 'Savings account',
+      updatedAt: new Date(),
+    });
+
+    const transactionItem = await transactionItemRepository.create(
+      new TransactionItem('test-item-3', 'Item sem descrição', 'Item opcional', new Date()),
+    );
+
+    const payload = {
+      amount: 500,
+      type: TransactionType.INCOME,
+      categoryId: '9', // Renda Ativa
+      transactionItemId: transactionItem.id,
+      accountId: account.id,
+      transactionDate: transactionDate,
+    };
+
+    const transaction = await useCase.execute(payload as any);
+
+    expect(transaction).toMatchObject({
+      description: undefined,
+      amount: 500,
+      type: TransactionType.INCOME,
+      category: expect.objectContaining({
+        id: '9',
+        name: 'Renda Ativa',
+      }),
+      account: expect.objectContaining({
+        id: 'account-3',
+        name: 'Savings Account',
+      }),
+      transactionDate: transactionDate,
+      dueDate: transactionDate,
+    });
+    expect(transaction.id).toBeDefined();
+    expect(transaction.updatedAt).toBeInstanceOf(Date);
+  });
 });

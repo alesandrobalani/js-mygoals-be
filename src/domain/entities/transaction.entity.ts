@@ -6,7 +6,7 @@ import { TransactionItem } from './transaction-item.entity';
 export class Transaction {
   constructor(
     public readonly id: string,
-    public readonly description: string,
+    public readonly description: string | undefined,
     public readonly amount: number,
     public readonly type: TransactionType,
     public readonly category: Category,
