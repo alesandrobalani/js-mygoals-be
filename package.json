@@ -12,10 +12,7 @@
     "lint": "eslint '{src,tests}/**/*.ts' --fix",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:integration": "jest --config jest.integration.config.js",
-    "test:e2e": "jest --config test/jest-e2e.json",
-    "test:e2e:memory": "cross-env DB_MODE=memory jest --config test/jest-e2e.json",
-    "test:e2e:postgres": "cross-env DB_MODE=postgres jest --config test/jest-e2e.json"
+    "test:integration": "jest --config jest.integration.config.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
