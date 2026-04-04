@@ -3,14 +3,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
+import { TransactionItemsModule } from './modules/transaction-items/transaction-items.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
+import { TransactionItemEntity } from './infrastructure/persistence/postgresql/transaction-item.entity';
 import { CategoryEntity } from './infrastructure/persistence/postgresql/category.entity';
 import { AccountEntity } from './infrastructure/persistence/postgresql/account.entity';
 import { CreateCategoryTable1704153600000 } from './database/migrations/1704153600000-CreateCategoryTable';
 import { CreateAccountTable1704153600001 } from './database/migrations/1704153600001-CreateAccountTable';
 import { CreateTransactionTable1704153600002 } from './database/migrations/1704153600002-CreateTransactionTable';
 import { SeedDefaultCategories1704153600003 } from './database/migrations/1704153600003-SeedDefaultCategories';
+import { CreateTransactionItemTable1704153600004 } from './database/migrations/1704153600004-CreateTransactionItemTable';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 
@@ -27,12 +30,13 @@ const usePostgres = process.env.DB_MODE === 'postgres';
             username: process.env.DB_USERNAME || 'postgres',
             password: process.env.DB_PASSWORD || 'password',
             database: process.env.DB_DATABASE || 'js_mygoals_be',
-            entities: [TransactionEntity, CategoryEntity, AccountEntity],
+            entities: [TransactionEntity, TransactionItemEntity, CategoryEntity, AccountEntity],
             migrations: [
               CreateCategoryTable1704153600000,
               CreateAccountTable1704153600001,
               CreateTransactionTable1704153600002,
               SeedDefaultCategories1704153600003,
+              CreateTransactionItemTable1704153600004,
             ],
             migrationsRun: false, // Executar manualmente via DatabaseService
             synchronize: false,
@@ -41,6 +45,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
       : []),
     DatabaseModule,
     TransactionsModule,
+    TransactionItemsModule,
     CategoriesModule,
     AccountsModule,
   ],

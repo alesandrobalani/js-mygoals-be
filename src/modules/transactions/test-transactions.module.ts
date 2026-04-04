@@ -3,6 +3,7 @@ import { TransactionsController } from './transactions.controller';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
 import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
+import { InMemoryTransactionItemRepository } from '../../infrastructure/persistence/in-memory/transaction-item.repository';
 import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-memory/category.repository';
 import { InMemoryAccountRepository } from '../../infrastructure/persistence/in-memory/account.repository';
 import { AccountsController } from '../accounts/accounts.controller';
@@ -15,11 +16,16 @@ import { DeleteAccountUseCase } from '../../use-cases/account/delete-account.use
   controllers: [TransactionsController, AccountsController],
   providers: [
     InMemoryTransactionRepository,
+    InMemoryTransactionItemRepository,
     InMemoryCategoryRepository,
     InMemoryAccountRepository,
     {
       provide: 'TransactionRepository',
       useExisting: InMemoryTransactionRepository,
+    },
+    {
+      provide: 'TransactionItemRepository',
+      useExisting: InMemoryTransactionItemRepository,
     },
     {
       provide: 'CategoryRepository',

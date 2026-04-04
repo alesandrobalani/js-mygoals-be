@@ -4,6 +4,7 @@ import request from 'supertest';
 import { TestAccountsModule } from '../modules/accounts/test-accounts.module';
 import { InMemoryTransactionRepository } from '../infrastructure/persistence/in-memory/transaction.repository';
 import { Transaction } from '../domain/entities/transaction.entity';
+import { TransactionItem } from '../domain/entities/transaction-item.entity';
 import { Category } from '../domain/entities/category.entity';
 import { Account } from '../domain/entities/account.entity';
 import { TransactionType } from '../dto/create-transaction.dto';
@@ -90,12 +91,14 @@ describe('Accounts integration', () => {
 
     // Create a transaction associated with this account
     const category = new Category('5', 'Alimentação', 'Compras de supermercado, restaurantes', new Date());
+    const transactionItem = new TransactionItem(randomUUID(), 'Item Obrigatório', 'Item usado em teste de conta', new Date());
     const transaction = new Transaction(
       randomUUID(),
       'Transação de teste',
       100,
       TransactionType.EXPENSE,
       category,
+      transactionItem,
       new Date(),
       account,
       new Date(),

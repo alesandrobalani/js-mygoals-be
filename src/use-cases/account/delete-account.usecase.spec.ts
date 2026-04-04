@@ -3,6 +3,7 @@ import { InMemoryTransactionRepository } from '../../infrastructure/persistence/
 import { DeleteAccountUseCase } from './delete-account.usecase';
 import { Account } from '../../domain/entities/account.entity';
 import { Transaction } from '../../domain/entities/transaction.entity';
+import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { Category } from '../../domain/entities/category.entity';
 import { TransactionType } from '../../dto/create-transaction.dto';
 import { randomUUID } from 'crypto';
@@ -48,12 +49,14 @@ describe('DeleteAccountUseCase', () => {
 
     // Create a transaction associated with this account
     const category = new Category('1', 'Test Category', 'Category for test', new Date());
+    const transactionItem = new TransactionItem(randomUUID(), 'Expense Item', 'Item for account delete test', new Date());
     const transaction = new Transaction(
       randomUUID(),
       'Test Transaction',
       100,
       TransactionType.EXPENSE,
       category,
+      transactionItem,
       new Date(),
       account,
       new Date(),

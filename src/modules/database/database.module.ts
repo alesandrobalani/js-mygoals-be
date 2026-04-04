@@ -9,13 +9,16 @@ import { TransactionEntity } from '../../infrastructure/persistence/postgresql/t
 import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-memory/category.repository';
 import { PostgreSQLCategoryRepository } from '../../infrastructure/persistence/postgresql/category.repository';
 import { CategoryEntity } from '../../infrastructure/persistence/postgresql/category.entity';
+import { InMemoryTransactionItemRepository } from '../../infrastructure/persistence/in-memory/transaction-item.repository';
+import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
+import { TransactionItemEntity } from '../../infrastructure/persistence/postgresql/transaction-item.entity';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
 @Module({
   imports: [
     ...(usePostgres ? [
-      TypeOrmModule.forFeature([AccountEntity, TransactionEntity, CategoryEntity])
+      TypeOrmModule.forFeature([AccountEntity, TransactionEntity, CategoryEntity, TransactionItemEntity])
     ] : []),
   ],
   providers: [
@@ -55,6 +58,24 @@ const usePostgres = process.env.DB_MODE === 'postgres';
       ],
     },
 
+    // Transaction item repositories
+    InMemoryTransactionItemRepository,
+    ...(usePostgres ? [PostgreSQLTransactionItemRepository] : []),
+    {
+      provide: 'TransactionItemRepository',
+      useFactory: (
+        inMemoryRepo: InMemoryTransactionItemRepository,
+        pgRepo?: PostgreSQLTransactionItemRepository,
+      ) => {
+        const dbMode = process.env.DB_MODE || 'memory';
+        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
+      },
+      inject: [
+        InMemoryTransactionItemRepository,
+        ...(usePostgres ? [PostgreSQLTransactionItemRepository] : []),
+      ],
+    },
+
     // Category repositories
     InMemoryCategoryRepository,
     ...(usePostgres ? [PostgreSQLCategoryRepository] : []),
@@ -76,6 +97,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
   exports: [
     'AccountRepository',
     'TransactionRepository',
+    'TransactionItemRepository',
     'CategoryRepository',
   ],
 })

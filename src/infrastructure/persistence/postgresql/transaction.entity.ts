@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryColumn, UpdateDateColumn, ManyToOne, JoinColumn 
 import { TransactionType } from '../../../dto/create-transaction.dto';
 import { CategoryEntity } from './category.entity';
 import { AccountEntity } from './account.entity';
+import { TransactionItemEntity } from './transaction-item.entity';
 
 @Entity('transactions')
 export class TransactionEntity {
@@ -26,6 +27,13 @@ export class TransactionEntity {
 
   @Column('uuid')
   categoryId!: string;
+
+  @ManyToOne(() => TransactionItemEntity)
+  @JoinColumn({ name: 'transactionItemId' })
+  transactionItem!: TransactionItemEntity;
+
+  @Column('uuid')
+  transactionItemId!: string;
 
   @ManyToOne(() => AccountEntity)
   @JoinColumn({ name: 'accountId' })

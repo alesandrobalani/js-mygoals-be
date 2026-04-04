@@ -4,6 +4,7 @@ import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
 import { CategoryRepository } from '../../domain/repositories/category.repository';
 import { AccountRepository } from '../../domain/repositories/account.repository';
+import { TransactionItemRepository } from '../../domain/repositories/transaction-item.repository';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -17,6 +18,8 @@ export class CreateTransactionUseCase {
     private readonly categoryRepository: CategoryRepository,
     @Inject('AccountRepository')
     private readonly accountRepository: AccountRepository,
+    @Inject('TransactionItemRepository')
+    private readonly transactionItemRepository: TransactionItemRepository,
   ) {}
 
   async execute(payload: CreateTransactionDto): Promise<Transaction> {
@@ -33,12 +36,18 @@ export class CreateTransactionUseCase {
       throw new Error(`Account with ID "${payload.accountId}" not found`);
     }
 
+    const transactionItem = await this.transactionItemRepository.findById(payload.transactionItemId);
+    if (!transactionItem) {
+      throw new Error(`Transaction item with ID "${payload.transactionItemId}" not found`);
+    }
+
     const transaction = new Transaction(
         randomUUID(),
         payload.description,
         payload.amount,
         payload.type,
         category,
+        transactionItem,
         payload.transactionDate,
         account,
         new Date(),

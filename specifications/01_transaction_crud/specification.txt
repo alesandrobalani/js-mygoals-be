@@ -4,7 +4,8 @@ Para isto quero armazenar cada transação com as seguintes informações:
 - Data da transação
 - Tipo: Receita ou despesa
 - Categoria: Habitação, Serviços públicos, Educação, Saúde, Alimentação, Transporte, Lazer, Cuidados pessoais, Renda Ativa, Renda extra, Renda passiva.
-- Descrição
+- Item da transação
+- Comentário
 - Data de vencimento
 - Conta
 

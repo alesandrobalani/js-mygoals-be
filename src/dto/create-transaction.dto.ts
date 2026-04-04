@@ -29,6 +29,11 @@ export class CreateTransactionDto {
   @Expose()
   @IsString()
   @IsNotEmpty()
+  transactionItemId!: string;
+
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
   accountId!: string;
 
   @Expose()

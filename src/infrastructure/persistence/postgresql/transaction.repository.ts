@@ -4,7 +4,9 @@ import { Repository } from 'typeorm';
 import { TransactionRepository } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
+import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
 import { TransactionEntity } from './transaction.entity';
+import { TransactionItemEntity } from './transaction-item.entity';
 
 @Injectable()
 export class PostgreSQLTransactionRepository implements TransactionRepository {
@@ -24,6 +26,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     entity.amount = transaction.amount;
     entity.type = transaction.type;
     entity.categoryId = transaction.category.id;
+    entity.transactionItemId = transaction.transactionItem.id;
     entity.accountId = transaction.account.id;
     entity.transactionDate = transaction.transactionDate;
     entity.dueDate = transaction.dueDate;
@@ -34,7 +37,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
       const loadedEntity = await this.transactionRepository.findOne({
         where: { id: savedEntity.id },
-        relations: ['category', 'account'],
+        relations: ['category', 'account', 'transactionItem'],
       });
       if (!loadedEntity) {
         throw new Error(`Failed to load saved transaction ${savedEntity.id}`);
@@ -46,6 +49,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         amount: loadedEntity.amount,
         type: loadedEntity.type,
         category: loadedEntity.category,
+        transactionItem: new TransactionItem(
+          loadedEntity.transactionItem.id,
+          loadedEntity.transactionItem.name,
+          loadedEntity.transactionItem.description,
+          loadedEntity.transactionItem.updatedAt,
+        ),
         transactionDate: loadedEntity.transactionDate,
         account: loadedEntity.account,
         updatedAt: loadedEntity.updatedAt,
@@ -64,7 +73,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
     try {
       const entities = await this.transactionRepository.find({
-        relations: ['category', 'account'],
+        relations: ['category', 'account', 'transactionItem'],
       });
       this.logger.debug(`Retrieved ${entities.length} transactions from database`, 'PostgreSQLTransactionRepository');
 
@@ -74,6 +83,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
+        transactionItem: new TransactionItem(
+          entity.transactionItem.id,
+          entity.transactionItem.name,
+          entity.transactionItem.description,
+          entity.transactionItem.updatedAt,
+        ),
         transactionDate: entity.transactionDate,
         account: entity.account,
         updatedAt: entity.updatedAt,
@@ -93,7 +108,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     try {
       const entity = await this.transactionRepository.findOne({ 
         where: { id },
-        relations: ['category', 'account'],
+        relations: ['category', 'account', 'transactionItem'],
       });
       if (!entity) {
         this.logger.debug(`Transaction not found: ${id}`, 'PostgreSQLTransactionRepository');
@@ -107,6 +122,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
+        transactionItem: new TransactionItem(
+          entity.transactionItem.id,
+          entity.transactionItem.name,
+          entity.transactionItem.description,
+          entity.transactionItem.updatedAt,
+        ),
         transactionDate: entity.transactionDate,
         account: entity.account,
         updatedAt: entity.updatedAt,
@@ -126,7 +147,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     try {
       const entities = await this.transactionRepository.find({
         where: { accountId },
-        relations: ['category', 'account'],
+        relations: ['category', 'account', 'transactionItem'],
       });
       this.logger.debug(`Retrieved ${entities.length} transactions for account ${accountId}`, 'PostgreSQLTransactionRepository');
 
@@ -136,6 +157,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
+        transactionItem: new TransactionItem(
+          entity.transactionItem.id,
+          entity.transactionItem.name,
+          entity.transactionItem.description,
+          entity.transactionItem.updatedAt,
+        ),
         transactionDate: entity.transactionDate,
         account: entity.account,
         updatedAt: entity.updatedAt,
@@ -145,6 +172,41 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Failed to retrieve transactions for account ${accountId}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
+      throw error;
+    }
+  }
+
+  async findByTransactionItemId(transactionItemId: string): Promise<Transaction[]> {
+    this.logger.debug(`Retrieving transactions by transaction item ID: ${transactionItemId}`, 'PostgreSQLTransactionRepository');
+
+    try {
+      const entities = await this.transactionRepository.find({
+        where: { transactionItemId },
+        relations: ['category', 'account', 'transactionItem'],
+      });
+      this.logger.debug(`Retrieved ${entities.length} transactions for transaction item ${transactionItemId}`, 'PostgreSQLTransactionRepository');
+
+      return entities.map(entity => ({
+        id: entity.id,
+        description: entity.description,
+        amount: entity.amount,
+        type: entity.type,
+        category: entity.category,
+        transactionItem: new TransactionItem(
+          entity.transactionItem.id,
+          entity.transactionItem.name,
+          entity.transactionItem.description,
+          entity.transactionItem.updatedAt,
+        ),
+        transactionDate: entity.transactionDate,
+        account: entity.account,
+        updatedAt: entity.updatedAt,
+        dueDate: entity.dueDate || entity.transactionDate,
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to retrieve transactions for transaction item ${transactionItemId}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
       throw error;
     }
   }
