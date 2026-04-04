@@ -6,7 +6,7 @@ API backend em NestJS com Clean Architecture para gerenciamento de transações 
 
 ## Estrutura
 - `src/domain` - entidades e contratos (repositories)
-- `src/use-cases` - casos de uso da aplicação
+- `src/use-cases` - casos de uso da aplicação (accounts, categories, transactions, transaction-items)
 - `src/infrastructure` - implementações de persistência e infra
 - `src/modules` - controllers e modules do Nest
 - `src/dto` - objetos de transferência de dados e validações
@@ -20,26 +20,35 @@ API padrão: `http://localhost:3000`
 ## Testes
 - Testes unitários: `npm test`
 - Testes de integração: `npm run test:integration`
-- Testes e2e: `npm run test:e2e`
 
 ## Campos da Transação
 - **description**: string (obrigatório)
 - **amount**: number > 0 (obrigatório)
 - **type**: 'income' | 'expense' (obrigatório)
-- **category**: enum (Habitação, Serviços públicos, Educação, Saúde, Alimentação, Transporte, Lazer, Cuidados pessoais, Renda Ativa, Renda extra, Renda passiva) (obrigatório)
+- **categoryId**: string (obrigatório)
+- **transactionItemId**: string (obrigatório)
 - **transactionDate**: Date (obrigatório)
-- **account**: string (obrigatório)
+- **accountId**: string (obrigatório)
 - **dueDate**: Date (opcional) - se informado, será usado como data da transação; se não informado, será igual à transactionDate
 
 ## Regras de Negócio
 - Se `dueDate` for informado, `transactionDate` será definido como `dueDate`
 - Se `dueDate` não for informado, será definido como `transactionDate`
+- Itens de transação têm nomes únicos
+- Não é possível remover um item de transação se houver transações associadas a ele
 
 ## Endpoints
-- POST `/transactions` - cria transação (body: description, amount, type, categoryId, transactionDate, account, dueDate?)
+- POST `/transactions` - cria transação (body: description, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
 - GET `/transactions` - lista transações
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias
+- POST `/accounts` - cria conta (body: name, description?)
+- GET `/accounts` - lista contas
+- POST `/transaction-items` - cria item de transação (body: name, description?)
+- GET `/transaction-items` - lista itens de transação
+- GET `/transaction-items/:id` - obtém item de transação por ID
+- PUT `/transaction-items/:id` - atualiza item de transação (body: name?, description?)
+- DELETE `/transaction-items/:id` - remove item de transação
 
 ## Testes com cURL
 
@@ -52,8 +61,9 @@ curl -X POST http://localhost:3000/transactions \
     "amount": 5000.00,
     "type": "income",
     "categoryId": "9",
+    "transactionItemId": "1",
     "transactionDate": "2024-01-15",
-    "account": "Conta Corrente",
+    "accountId": "1",
     "dueDate": "2024-01-15"
   }'
 ```
@@ -67,8 +77,9 @@ curl -X POST http://localhost:3000/transactions \
     "amount": 150.50,
     "type": "expense",
     "categoryId": "2",
+    "transactionItemId": "2",
     "transactionDate": "2024-01-10",
-    "account": "Conta Corrente"
+    "accountId": "1"
   }'
 ```
 
@@ -86,8 +97,9 @@ curl -X POST http://localhost:3000/transactions \
     "amount": 200.00,
     "type": "expense",
     "categoryId": "1",
+    "transactionItemId": "3",
     "transactionDate": "2024-01-01",
-    "account": "Cartão Visa",
+    "accountId": "2",
     "dueDate": "2024-01-15"
   }'
 ```
@@ -105,6 +117,51 @@ curl -X POST http://localhost:3000/categories \
     "name": "Investimentos",
     "description": "Aplicações financeiras e investimentos"
   }'
+```
+
+### Listar todas as contas
+```bash
+curl -X GET http://localhost:3000/accounts
+```
+
+### Criar uma nova conta
+```bash
+curl -X POST http://localhost:3000/accounts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Conta Corrente",
+    "description": "Conta corrente do banco principal"
+  }'
+```
+
+### Listar todos os itens de transação
+```bash
+curl -X GET http://localhost:3000/transaction-items
+```
+
+### Criar um novo item de transação
+```bash
+curl -X POST http://localhost:3000/transaction-items \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Salário",
+    "description": "Renda mensal do trabalho"
+  }'
+```
+
+### Atualizar um item de transação
+```bash
+curl -X PUT http://localhost:3000/transaction-items/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Salário Atualizado",
+    "description": "Renda mensal atualizada"
+  }'
+```
+
+### Remover um item de transação
+```bash
+curl -X DELETE http://localhost:3000/transaction-items/1
 ```
 
 ## Observações
@@ -125,15 +182,20 @@ curl -X POST http://localhost:3000/categories \
 - `DB_PASSWORD=password`
 - `DB_DATABASE=js_mygoals_be`
 
-## Executando testes e2e
-- Memória: `npm run test:e2e:memory`
-- PostgreSQL: `npm run test:e2e:postgres` (necessita `docker compose up` )
-
 ## Migrations
 - Migrations executam automaticamente na inicialização quando `DB_MODE=postgres`
 - Primeira migração: `1704153600000-CreateTransactionTable.ts`
   - Cria tabela `transactions` com todas as colunas
   - Enums para `type` (income/expense) e `category`
+- Segunda migração: `1704153600001-CreateAccountTable.ts`
+  - Cria tabela `accounts`
+- Terceira migração: `1704153600002-CreateCategoryTable.ts`
+  - Cria tabela `categories`
+- Quarta migração: `1704153600003-SeedDefaultCategories.ts`
+  - Insere categorias padrão
+- Quinta migração: `1704153600004-CreateTransactionItemTable.ts`
+  - Cria tabela `transaction_items`
+  - Adiciona coluna `transactionItemId` à tabela `transactions`
 - Para reverter manualmente (dev):
   ```bash
   npx typeorm migration:revert -d dist/database/database.config.js

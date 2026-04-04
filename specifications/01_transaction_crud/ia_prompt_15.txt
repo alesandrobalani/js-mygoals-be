@@ -3,3 +3,4 @@ Esta entidade deve ter as propriedades: nome (unique), descrição (opcional), d
 Altere a entidade de transação para ter relacionamento com o item da transação e obrigatório.
 Não permitir remoção de um registro desta entidade caso tenha um registro de transação em utilização.
 Criar os testes unitários para os use cases da entidade de item de transação.
+Ajustar o README da aplicação com as novas interfaces

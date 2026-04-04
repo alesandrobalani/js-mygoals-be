@@ -1,0 +1,2 @@
+Remover os testes end to end.
+Como a aplicação ainda não possui uma estrutura de interfaceamento de serviços, vamos manter apenas os testes unitários e de integração.
