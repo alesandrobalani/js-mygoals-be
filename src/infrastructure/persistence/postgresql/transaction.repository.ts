@@ -22,7 +22,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
     const entity = new TransactionEntity();
     entity.id = transaction.id;
-    entity.description = transaction.description;
+    entity.description = transaction.description ?? null;
     entity.amount = transaction.amount;
     entity.type = transaction.type;
     entity.categoryId = transaction.category.id;
@@ -45,7 +45,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
       return {
         id: loadedEntity.id,
-        description: loadedEntity.description,
+        description: loadedEntity.description || undefined,
         amount: loadedEntity.amount,
         type: loadedEntity.type,
         category: loadedEntity.category,
@@ -79,7 +79,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
       return entities.map(entity => ({
         id: entity.id,
-        description: entity.description,
+        description: entity.description || undefined,
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
@@ -118,7 +118,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       this.logger.debug(`Transaction found: ${id}`, 'PostgreSQLTransactionRepository');
       return {
         id: entity.id,
-        description: entity.description,
+        description: entity.description || undefined,
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
@@ -153,7 +153,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
       return entities.map(entity => ({
         id: entity.id,
-        description: entity.description,
+        description: entity.description || undefined,
         amount: entity.amount,
         type: entity.type,
         category: entity.category,
@@ -188,7 +188,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
       return entities.map(entity => ({
         id: entity.id,
-        description: entity.description,
+        description: entity.description || undefined,
         amount: entity.amount,
         type: entity.type,
         category: entity.category,

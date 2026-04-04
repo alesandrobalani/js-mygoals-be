@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as crypto from 'crypto';
 
-export class SeedDefaultCategories1704153600003 implements MigrationInterface {
+export class SeedDefaultCategories1704153600004 implements MigrationInterface {
   private readonly categories = [
     { name: 'Habitação', description: 'Categoria para despesas de habitação' },
     { name: 'Serviços públicos', description: 'Categoria para contas de serviços públicos' },

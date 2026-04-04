@@ -9,8 +9,8 @@ export class TransactionEntity {
   @PrimaryColumn('uuid')
   id!: string;
 
-  @Column()
-  description!: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string | null;
 
   @Column('decimal', { precision: 10, scale: 2 })
   amount!: number;

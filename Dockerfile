@@ -1,9 +1,9 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# Production dependencies first
+# Install all dependencies (including dev dependencies for build)
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
 COPY . .
 RUN npm run build
