@@ -164,11 +164,13 @@ curl -X PUT http://localhost:3000/transaction-items/1 \
 curl -X DELETE http://localhost:3000/transaction-items/1
 ```
 
-## Observações
-- Repositório em memória para protótipo.
-- Compatível com Node.js >= 18 (testado com 18.20.8).
-- Zero vulnerabilidades de segurança!
-- Usa NestJS 11.1.18, Jest 29.7.0, TypeScript 5.4.5 para máxima segurança e performance.
+## Otimizações de Performance
+- **Particionamento**: Tabela `transactions` particionada por ano usando `dueDate` para melhor performance em consultas históricas
+- **Índices**:
+  - `idx_transactions_transaction_item_id` - consultas por item de transação
+  - `idx_transactions_account_id` - consultas por conta
+  - `idx_transactions_category_id` - consultas por categoria
+  - `idx_transactions_due_date_type` - consultas compostas por data de vencimento e tipo
 
 ## Docker (desenvolvimento)
 1. `docker compose up --build`
@@ -196,6 +198,9 @@ curl -X DELETE http://localhost:3000/transaction-items/1
 - Quinta migração: `1704153600004-CreateTransactionItemTable.ts`
   - Cria tabela `transaction_items`
   - Adiciona coluna `transactionItemId` à tabela `transactions`
+- Sexta migração: `1704153600005-OptimizeTransactionTable.ts`
+  - Converte tabela `transactions` para particionada por ano (usando `dueDate`)
+  - Cria índices de consulta por `transactionItemId`, `accountId`, `categoryId` e composto `(dueDate, type)`
 - Para reverter manualmente (dev):
   ```bash
   npx typeorm migration:revert -d dist/database/database.config.js
