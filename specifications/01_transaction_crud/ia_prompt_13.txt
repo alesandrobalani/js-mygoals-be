@@ -1,0 +1,26 @@
+Crie um migration para adicionar as categorias padrões no banco de dados:
+  HABITACAO = 'Habitação',
+  SERVICOS_PUBLICOS = 'Serviços públicos',
+  EDUCACAO = 'Educação',
+  SAUDE = 'Saúde',
+  ALIMENTACAO = 'Alimentação',
+  TRANSPORTE = 'Transporte',
+  LAZER = 'Lazer',
+  CUIDADOS_PESSOAIS = 'Cuidados pessoais',
+  RENDA_ATIVA = 'Renda Ativa',
+  RENDA_EXTRA = 'Renda extra',
+  RENDA_PASSIVA = 'Renda passiva',
+
+Para a propriedade id gere UUID
+
+Ajuste a propriedade createAt da entidade categoria para ser obrigatória. Seu valor default será o timestamp do momento da criação.
+
+Ajuste os testes de integração para adicionar o novo comportamento de criação de categorias.
+
+Criar os testes unitários para o use case de criar categorias.
+
+Organizar os diretórios de testes end to end e criar os testes end to end para as operações com a entidade categoria.
+
+Ajuste os arquivos de migration com a alteração da tabela transaction, que possui uma referência para a tabela de categoria.
+
+Ajuste a ordem de execução dos arquivos de migration.

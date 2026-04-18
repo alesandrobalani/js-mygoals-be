@@ -1,0 +1,1 @@
+Crie um projeto usando NestJS, e clean architecture, para criar uma aplicação para gestão financeira familiar dentro da pasta js-mygoals-be.

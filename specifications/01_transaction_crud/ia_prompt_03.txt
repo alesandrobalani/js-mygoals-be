@@ -1,0 +1,2 @@
+Resolva as vulnerabilidades encontradas no install do npm.
+Ajuste package.json para manter stack estável.

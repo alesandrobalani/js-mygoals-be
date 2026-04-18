@@ -1,0 +1,6 @@
+Para a tabela transaction vamos entregar as seguintes melhorias:
+ - Particione a tabela por ano utilizando a propriedade dueDate.
+ - Crie indices de consulta:
+   - por transaction-item
+   - por account
+   - por category

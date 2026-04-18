@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: js_mygoals_be
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DB_MODE: postgres
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: js_mygoals_be
+    ports:
+      - '3000:3000'
+    command: npm run start:dev
+
+volumes:
+  pgdata:

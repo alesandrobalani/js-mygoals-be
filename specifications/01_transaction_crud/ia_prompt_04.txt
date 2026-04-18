@@ -1,0 +1,2 @@
+Crie a estrutra de testes automatizados para esta aplicação.
+Nela deve ser contemplada estrutura para testes unitários, testes de integração e teste end to end.

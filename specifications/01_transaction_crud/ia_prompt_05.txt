@@ -1,0 +1,9 @@
+No dto de transação deve existir os seguintes campos:
+- Data da transação
+- Tipo: Receita ou despesa
+- Categoria: Habitação, Serviços públicos, Educação, Saúde, Alimentação, Transporte, Lazer, Cuidados pessoais, Renda Ativa, Renda extra, Renda passiva.
+- Descrição
+- Data de vencimento
+- Conta
+
+A data de vencimento para o dto pode ser opcional, pois quando informada será armazenada no repositório com a data da transação.

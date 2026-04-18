@@ -1,0 +1,1 @@
+Para melhorar a performance do processo no delete do account,  onde é verificado se existe alguma transação, melhore a performance fazendo com que a busca seja realizada para apenas uma incidência, não precisando trazer todas as transações com aquela conta e nem contar o número de registros com aquela conta.
