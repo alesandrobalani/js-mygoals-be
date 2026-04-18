@@ -19,11 +19,11 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     return this.transactions.find(transaction => transaction.id === id) ?? null;
   }
 
-  async findByAccountId(accountId: string): Promise<Transaction[]> {
-    return this.transactions.filter(transaction => transaction.account.id === accountId);
+  async existsByAccountId(accountId: string): Promise<boolean> {
+    return this.transactions.some(transaction => transaction.account.id === accountId);
   }
 
-  async findByTransactionItemId(transactionItemId: string): Promise<Transaction[]> {
-    return this.transactions.filter(transaction => transaction.transactionItem.id === transactionItemId);
+  async existsByTransactionItemId(transactionItemId: string): Promise<boolean> {
+    return this.transactions.some(transaction => transaction.transactionItem.id === transactionItemId);
   }
 }

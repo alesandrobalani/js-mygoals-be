@@ -16,8 +16,8 @@ export class DeleteTransactionItemUseCase {
   async execute(id: string): Promise<void> {
     this.logger.log(`Deleting transaction item: ${id}`, 'DeleteTransactionItemUseCase');
 
-    const transactions = await this.transactionRepository.findByTransactionItemId(id);
-    if (transactions.length > 0) {
+    const hasTransactions = await this.transactionRepository.existsByTransactionItemId(id);
+    if (hasTransactions) {
       throw new Error('Cannot delete transaction item because it is used by one or more transactions');
     }
 

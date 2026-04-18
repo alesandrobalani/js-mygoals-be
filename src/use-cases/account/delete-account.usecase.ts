@@ -20,10 +20,9 @@ export class DeleteAccountUseCase {
       throw new Error(`Account with ID "${id}" not found`);
     }
 
-    // Check if account has any transactions
-    const transactions = await this.transactionRepository.findByAccountId(id);
-    if (transactions.length > 0) {
-      throw new BadRequestException(`Cannot delete account "${account.name}" because it has ${transactions.length} associated transaction(s)`);
+    const hasTransactions = await this.transactionRepository.existsByAccountId(id);
+    if (hasTransactions) {
+      throw new BadRequestException(`Cannot delete account "${account.name}" because it has associated transactions`);
     }
 
     await this.accountRepository.delete(id);

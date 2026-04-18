@@ -1,7 +1,6 @@
 import { InMemoryAccountRepository } from '../../infrastructure/persistence/in-memory/account.repository';
 import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
 import { DeleteAccountUseCase } from './delete-account.usecase';
-import { Account } from '../../domain/entities/account.entity';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { Category } from '../../domain/entities/category.entity';
@@ -65,6 +64,6 @@ describe('DeleteAccountUseCase', () => {
 
     await transactionRepository.create(transaction);
 
-    await expect(useCase.execute(account.id)).rejects.toThrow('Cannot delete account "Account With Transaction" because it has 1 associated transaction(s)');
+    await expect(useCase.execute(account.id)).rejects.toThrow('Cannot delete account "Account With Transaction" because it has associated transactions');
   });
 });

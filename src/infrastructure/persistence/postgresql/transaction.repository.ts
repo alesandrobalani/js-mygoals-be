@@ -140,74 +140,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       throw error;
     }
   }
-
-  async findByAccountId(accountId: string): Promise<Transaction[]> {
-    this.logger.debug(`Retrieving transactions by account ID: ${accountId}`, 'PostgreSQLTransactionRepository');
-
-    try {
-      const entities = await this.transactionRepository.find({
-        where: { accountId },
-        relations: ['category', 'account', 'transactionItem'],
-      });
-      this.logger.debug(`Retrieved ${entities.length} transactions for account ${accountId}`, 'PostgreSQLTransactionRepository');
-
-      return entities.map(entity => ({
-        id: entity.id,
-        description: entity.description || undefined,
-        amount: entity.amount,
-        type: entity.type,
-        category: entity.category,
-        transactionItem: new TransactionItem(
-          entity.transactionItem.id,
-          entity.transactionItem.name,
-          entity.transactionItem.description,
-          entity.transactionItem.updatedAt,
-        ),
-        transactionDate: entity.transactionDate,
-        account: entity.account,
-        updatedAt: entity.updatedAt,
-        dueDate: entity.dueDate || entity.transactionDate,
-      }));
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(`Failed to retrieve transactions for account ${accountId}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
-      throw error;
-    }
+  
+  async existsByAccountId(accountId: string): Promise<boolean> {
+    return this.transactionRepository.exists({ where: { accountId } });
   }
 
-  async findByTransactionItemId(transactionItemId: string): Promise<Transaction[]> {
-    this.logger.debug(`Retrieving transactions by transaction item ID: ${transactionItemId}`, 'PostgreSQLTransactionRepository');
-
-    try {
-      const entities = await this.transactionRepository.find({
-        where: { transactionItemId },
-        relations: ['category', 'account', 'transactionItem'],
-      });
-      this.logger.debug(`Retrieved ${entities.length} transactions for transaction item ${transactionItemId}`, 'PostgreSQLTransactionRepository');
-
-      return entities.map(entity => ({
-        id: entity.id,
-        description: entity.description || undefined,
-        amount: entity.amount,
-        type: entity.type,
-        category: entity.category,
-        transactionItem: new TransactionItem(
-          entity.transactionItem.id,
-          entity.transactionItem.name,
-          entity.transactionItem.description,
-          entity.transactionItem.updatedAt,
-        ),
-        transactionDate: entity.transactionDate,
-        account: entity.account,
-        updatedAt: entity.updatedAt,
-        dueDate: entity.dueDate || entity.transactionDate,
-      }));
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(`Failed to retrieve transactions for transaction item ${transactionItemId}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
-      throw error;
-    }
+  async existsByTransactionItemId(transactionItemId: string): Promise<boolean> {
+    return this.transactionRepository.exists({ where: { transactionItemId } });
   }
 }
