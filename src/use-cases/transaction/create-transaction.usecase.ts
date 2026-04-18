@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
@@ -28,17 +28,17 @@ export class CreateTransactionUseCase {
     // Find the category
     const category = await this.categoryRepository.findById(payload.categoryId);
     if (!category) {
-      throw new Error(`Category with ID "${payload.categoryId}" not found`);
+      throw new NotFoundException(`Category with ID "${payload.categoryId}" not found`);
     }
 
     const account = await this.accountRepository.findById(payload.accountId);
     if (!account) {
-      throw new Error(`Account with ID "${payload.accountId}" not found`);
+      throw new NotFoundException(`Account with ID "${payload.accountId}" not found`);
     }
 
     const transactionItem = await this.transactionItemRepository.findById(payload.transactionItemId);
     if (!transactionItem) {
-      throw new Error(`Transaction item with ID "${payload.transactionItemId}" not found`);
+      throw new NotFoundException(`Transaction item with ID "${payload.transactionItemId}" not found`);
     }
 
     const transaction = new Transaction(

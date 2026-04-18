@@ -5,7 +5,6 @@ export class UpdateTransactionItemDto {
   @Expose()
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   name?: string;
 
   @Expose()

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateTransactionItemDto } from '../../dto/create-transaction-item.dto';
 import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { TransactionItemRepository } from '../../domain/repositories/transaction-item.repository';
@@ -18,7 +18,7 @@ export class CreateTransactionItemUseCase {
 
     const existing = await this.transactionItemRepository.findByName(payload.name);
     if (existing) {
-      throw new Error(`Transaction item with name "${payload.name}" already exists`);
+      throw new ConflictException(`Transaction item with name "${payload.name}" already exists`);
     }
 
     const item = new TransactionItem(

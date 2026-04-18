@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nestjs/common';
 import { CreateCategoryDto } from '../../dto/create-category.dto';
 import { CreateCategoryUseCase } from '../../use-cases/category/create-category.usecase';
 import { GetCategoriesUseCase } from '../../use-cases/category/get-categories.usecase';
@@ -13,6 +13,7 @@ export class CategoriesController {
   ) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateCategoryDto) {
     this.logger.log(`POST /categories - Creating category: ${payload.name}`, 'CategoriesController');
 

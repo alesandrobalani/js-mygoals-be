@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UpdateTransactionItemDto } from '../../dto/update-transaction-item.dto';
 import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { TransactionItemRepository } from '../../domain/repositories/transaction-item.repository';
@@ -17,13 +17,13 @@ export class UpdateTransactionItemUseCase {
 
     const existing = await this.transactionItemRepository.findById(id);
     if (!existing) {
-      throw new Error(`Transaction item with ID "${id}" not found`);
+      throw new NotFoundException(`Transaction item with ID "${id}" not found`);
     }
 
     if (payload.name && payload.name !== existing.name) {
       const duplicate = await this.transactionItemRepository.findByName(payload.name);
       if (duplicate) {
-        throw new Error(`Transaction item with name "${payload.name}" already exists`);
+        throw new ConflictException(`Transaction item with name "${payload.name}" already exists`);
       }
     }
 

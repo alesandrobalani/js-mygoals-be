@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AccountRepository } from '../../domain/repositories/account.repository';
 import { Account } from '../../domain/entities/account.entity';
 
@@ -22,7 +22,7 @@ export class UpdateAccountUseCase {
 
     const existingAccount = await this.accountRepository.findById(input.id);
     if (!existingAccount) {
-      throw new Error(`Account with ID "${input.id}" not found`);
+      throw new NotFoundException(`Account with ID "${input.id}" not found`);
     }
 
     const updatedAccount = new Account(

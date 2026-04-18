@@ -48,6 +48,6 @@ export class TransactionEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @Column({ type: 'date', nullable: true })
-  dueDate?: Date;
+  @Column({ type: 'date' })
+  dueDate!: Date;
 }

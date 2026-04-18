@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AccountRepository } from '../../domain/repositories/account.repository';
 import { TransactionRepository } from '../../domain/repositories/transaction.repository';
 
@@ -17,7 +17,7 @@ export class DeleteAccountUseCase {
     this.logger.log(`Deleting account: ${id}`, 'DeleteAccountUseCase');
     const account = await this.accountRepository.findById(id);
     if (!account) {
-      throw new Error(`Account with ID "${id}" not found`);
+      throw new NotFoundException(`Account with ID "${id}" not found`);
     }
 
     const hasTransactions = await this.transactionRepository.existsByAccountId(id);

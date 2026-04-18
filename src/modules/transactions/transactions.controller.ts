@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
@@ -13,18 +13,12 @@ export class TransactionsController {
   ) {}
 
   @Post()
-  async create(@Body() payload: any) {
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() payload: CreateTransactionDto) {
     this.logger.log(`POST /transactions - Creating transaction: ${payload.description}`, 'TransactionsController');
 
-    // Convert date strings to Date objects
-    const processedPayload = {
-      ...payload,
-      transactionDate: new Date(payload.transactionDate),
-      dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
-    };
-
     try {
-      const result = await this.createTransaction.execute(processedPayload);
+      const result = await this.createTransaction.execute(payload);
       this.logger.log(`Transaction created successfully: ${result.id}`, 'TransactionsController');
       return result;
     } catch (error) {

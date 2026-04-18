@@ -1,5 +1,5 @@
-import { Expose } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export enum TransactionType {
   INCOME = 'income',
@@ -37,9 +37,13 @@ export class CreateTransactionDto {
   accountId!: string;
 
   @Expose()
+  @Type(() => Date)
+  @IsDate()
   transactionDate!: Date;
 
   @Expose()
   @IsOptional()
+  @Type(() => Date)
+  @IsDate()
   dueDate?: Date;
 }

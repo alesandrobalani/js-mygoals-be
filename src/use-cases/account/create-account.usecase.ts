@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { AccountRepository } from '../../domain/repositories/account.repository';
 import { Account } from '../../domain/entities/account.entity';
@@ -22,7 +22,7 @@ export class CreateAccountUseCase {
 
     const existingAccount = await this.accountRepository.findByName(input.name);
     if (existingAccount) {
-      throw new Error(`Account with name "${input.name}" already exists`);
+      throw new ConflictException(`Account with name "${input.name}" already exists`);
     }
 
     const account = new Account(

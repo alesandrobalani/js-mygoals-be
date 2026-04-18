@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CategoryRepository } from '../../domain/repositories/category.repository';
 import { Category } from '../../domain/entities/category.entity';
@@ -23,7 +23,7 @@ export class CreateCategoryUseCase {
     // Check if category already exists
     const existingCategory = await this.categoryRepository.findByName(input.name);
     if (existingCategory) {
-      throw new Error(`Category with name "${input.name}" already exists`);
+      throw new ConflictException(`Category with name "${input.name}" already exists`);
     }
 
     const category = new Category(

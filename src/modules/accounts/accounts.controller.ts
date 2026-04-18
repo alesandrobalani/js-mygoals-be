@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Logger, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { CreateAccountDto } from '../../dto/create-account.dto';
 import { UpdateAccountDto } from '../../dto/update-account.dto';
 import { CreateAccountUseCase } from '../../use-cases/account/create-account.usecase';
@@ -18,6 +18,7 @@ export class AccountsController {
   ) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateAccountDto) {
     this.logger.log(`POST /accounts - Creating account: ${payload.name}`, 'AccountsController');
 
@@ -50,7 +51,7 @@ export class AccountsController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() payload: UpdateAccountDto) {
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateAccountDto) {
     this.logger.log(`PUT /accounts/${id} - Updating account`, 'AccountsController');
 
     try {
@@ -66,7 +67,7 @@ export class AccountsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     this.logger.log(`DELETE /accounts/${id} - Deleting account`, 'AccountsController');
 
     try {
