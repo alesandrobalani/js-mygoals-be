@@ -2,7 +2,10 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nest
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { UserRole } from '../../domain/entities/user.entity';
 
+@Roles(UserRole.USER)
 @Controller('transactions')
 export class TransactionsController {
   private readonly logger = new Logger(TransactionsController.name);

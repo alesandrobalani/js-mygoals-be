@@ -5,7 +5,10 @@ import { CreateAccountUseCase } from '../../use-cases/account/create-account.use
 import { GetAccountsUseCase } from '../../use-cases/account/get-accounts.usecase';
 import { UpdateAccountUseCase } from '../../use-cases/account/update-account.usecase';
 import { DeleteAccountUseCase } from '../../use-cases/account/delete-account.usecase';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { UserRole } from '../../domain/entities/user.entity';
 
+@Roles(UserRole.USER)
 @Controller('accounts')
 export class AccountsController {
   private readonly logger = new Logger(AccountsController.name);

@@ -1,0 +1,2 @@
+Ajustar os endpoints de criação de usuários para não ser publico, e poder ser acessado por um tipo de usuário que é administrador do sistema.
+Os endpoints da aplicação devem controle de autorização de acesso por tipo de usuário.

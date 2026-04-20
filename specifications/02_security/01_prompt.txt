@@ -1,0 +1,3 @@
+quero criar recurso de segurança para acesso as apis deste projeto.
+Planege esta alteração em etapas e explique as etapas e recursos a serem utilizados.
+Utilize práticas modernas e eficazes de autenticação e autorização de recursos de apis.

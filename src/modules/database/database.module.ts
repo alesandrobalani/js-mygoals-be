@@ -12,13 +12,26 @@ import { CategoryEntity } from '../../infrastructure/persistence/postgresql/cate
 import { InMemoryTransactionItemRepository } from '../../infrastructure/persistence/in-memory/transaction-item.repository';
 import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
 import { TransactionItemEntity } from '../../infrastructure/persistence/postgresql/transaction-item.entity';
+import { InMemoryUserRepository } from '../../infrastructure/persistence/in-memory/user.repository';
+import { PostgreSQLUserRepository } from '../../infrastructure/persistence/postgresql/user.repository';
+import { UserEntity } from '../../infrastructure/persistence/postgresql/user.entity';
+import { InMemoryRefreshTokenRepository } from '../../infrastructure/persistence/in-memory/refresh-token.repository';
+import { PostgreSQLRefreshTokenRepository } from '../../infrastructure/persistence/postgresql/refresh-token.repository';
+import { RefreshTokenEntity } from '../../infrastructure/persistence/postgresql/refresh-token.entity';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
 @Module({
   imports: [
     ...(usePostgres ? [
-      TypeOrmModule.forFeature([AccountEntity, TransactionEntity, CategoryEntity, TransactionItemEntity])
+      TypeOrmModule.forFeature([
+        AccountEntity,
+        TransactionEntity,
+        CategoryEntity,
+        TransactionItemEntity,
+        UserEntity,
+        RefreshTokenEntity,
+      ])
     ] : []),
   ],
   providers: [
@@ -27,17 +40,9 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     ...(usePostgres ? [PostgreSQLAccountRepository] : []),
     {
       provide: 'AccountRepository',
-      useFactory: (
-        inMemoryRepo: InMemoryAccountRepository,
-        pgRepo?: PostgreSQLAccountRepository,
-      ) => {
-        const dbMode = process.env.DB_MODE || 'memory';
-        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
-      },
-      inject: [
-        InMemoryAccountRepository,
-        ...(usePostgres ? [PostgreSQLAccountRepository] : []),
-      ],
+      useFactory: (inMemoryRepo: InMemoryAccountRepository, pgRepo?: PostgreSQLAccountRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryAccountRepository, ...(usePostgres ? [PostgreSQLAccountRepository] : [])],
     },
 
     // Transaction repositories
@@ -45,17 +50,9 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     ...(usePostgres ? [PostgreSQLTransactionRepository] : []),
     {
       provide: 'TransactionRepository',
-      useFactory: (
-        inMemoryRepo: InMemoryTransactionRepository,
-        pgRepo?: PostgreSQLTransactionRepository,
-      ) => {
-        const dbMode = process.env.DB_MODE || 'memory';
-        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
-      },
-      inject: [
-        InMemoryTransactionRepository,
-        ...(usePostgres ? [PostgreSQLTransactionRepository] : []),
-      ],
+      useFactory: (inMemoryRepo: InMemoryTransactionRepository, pgRepo?: PostgreSQLTransactionRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryTransactionRepository, ...(usePostgres ? [PostgreSQLTransactionRepository] : [])],
     },
 
     // Transaction item repositories
@@ -63,17 +60,9 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     ...(usePostgres ? [PostgreSQLTransactionItemRepository] : []),
     {
       provide: 'TransactionItemRepository',
-      useFactory: (
-        inMemoryRepo: InMemoryTransactionItemRepository,
-        pgRepo?: PostgreSQLTransactionItemRepository,
-      ) => {
-        const dbMode = process.env.DB_MODE || 'memory';
-        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
-      },
-      inject: [
-        InMemoryTransactionItemRepository,
-        ...(usePostgres ? [PostgreSQLTransactionItemRepository] : []),
-      ],
+      useFactory: (inMemoryRepo: InMemoryTransactionItemRepository, pgRepo?: PostgreSQLTransactionItemRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryTransactionItemRepository, ...(usePostgres ? [PostgreSQLTransactionItemRepository] : [])],
     },
 
     // Category repositories
@@ -81,17 +70,29 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     ...(usePostgres ? [PostgreSQLCategoryRepository] : []),
     {
       provide: 'CategoryRepository',
-      useFactory: (
-        inMemoryRepo: InMemoryCategoryRepository,
-        pgRepo?: PostgreSQLCategoryRepository,
-      ) => {
-        const dbMode = process.env.DB_MODE || 'memory';
-        return dbMode === 'postgres' ? pgRepo : inMemoryRepo;
-      },
-      inject: [
-        InMemoryCategoryRepository,
-        ...(usePostgres ? [PostgreSQLCategoryRepository] : []),
-      ],
+      useFactory: (inMemoryRepo: InMemoryCategoryRepository, pgRepo?: PostgreSQLCategoryRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryCategoryRepository, ...(usePostgres ? [PostgreSQLCategoryRepository] : [])],
+    },
+
+    // User repositories
+    InMemoryUserRepository,
+    ...(usePostgres ? [PostgreSQLUserRepository] : []),
+    {
+      provide: 'UserRepository',
+      useFactory: (inMemoryRepo: InMemoryUserRepository, pgRepo?: PostgreSQLUserRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryUserRepository, ...(usePostgres ? [PostgreSQLUserRepository] : [])],
+    },
+
+    // Refresh token repositories
+    InMemoryRefreshTokenRepository,
+    ...(usePostgres ? [PostgreSQLRefreshTokenRepository] : []),
+    {
+      provide: 'RefreshTokenRepository',
+      useFactory: (inMemoryRepo: InMemoryRefreshTokenRepository, pgRepo?: PostgreSQLRefreshTokenRepository) =>
+        process.env.DB_MODE === 'postgres' ? pgRepo : inMemoryRepo,
+      inject: [InMemoryRefreshTokenRepository, ...(usePostgres ? [PostgreSQLRefreshTokenRepository] : [])],
     },
   ],
   exports: [
@@ -99,6 +100,8 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     'TransactionRepository',
     'TransactionItemRepository',
     'CategoryRepository',
+    'UserRepository',
+    'RefreshTokenRepository',
   ],
 })
 export class DatabaseModule {}
