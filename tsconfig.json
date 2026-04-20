@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "moduleResolution": "node",
+    "moduleResolution": "node10",
+    "ignoreDeprecations": "5.0",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -10,15 +11,12 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2020",
     "sourceMap": true,
+    "rootDir": "src",
     "outDir": "dist",
-    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["node", "jest"],
-    "paths": {
-      "@app/*": ["src/*"]
-    }
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*", "test/**/*"]
 }

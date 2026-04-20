@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/commo
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { TokenService, TokenPair } from './token.service';
+import { UserRole } from '../../domain/entities/user.entity';
 
 export interface LoginInput {
   email: string;
@@ -9,7 +10,7 @@ export interface LoginInput {
 }
 
 export interface LoginOutput {
-  user: { id: string; email: string; name: string };
+  user: { id: string; email: string; name: string; role: UserRole };
   accessToken: string;
   refreshToken: string;
 }
@@ -41,7 +42,7 @@ export class LoginUseCase {
 
     this.logger.log(`User logged in successfully: ${user.id}`, 'LoginUseCase');
     return {
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
       ...tokens,
     };
   }

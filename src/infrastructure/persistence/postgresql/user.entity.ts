@@ -15,7 +15,7 @@ export class UserEntity {
   @Column()
   name!: string;
 
-  @Column({ default: UserRole.USER })
+  @Column({ type: 'varchar', length: 50, default: UserRole.USER })
   role!: UserRole;
 
   @UpdateDateColumn()
