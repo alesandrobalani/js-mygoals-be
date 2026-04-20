@@ -7,7 +7,9 @@ import { RefreshTokenUseCase } from '../../use-cases/auth/refresh-token.usecase'
 import { LogoutUseCase } from '../../use-cases/auth/logout.usecase';
 import { Public } from '../../auth/decorators/public.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
+import { UserRole } from '../../domain/entities/user.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Expose } from 'class-transformer';
 
@@ -36,7 +38,7 @@ export class AuthController {
     private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
-  @Public()
+  @Roles(UserRole.ADMIN)
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() payload: RegisterDto) {

@@ -6,9 +6,10 @@ API backend em NestJS com Clean Architecture para gerenciamento de transações 
 
 ## Estrutura
 - `src/domain` - entidades e contratos (repositories)
-- `src/use-cases` - casos de uso da aplicação (accounts, categories, transactions, transaction-items)
+- `src/use-cases` - casos de uso da aplicação (accounts, categories, transactions, transaction-items, auth)
 - `src/infrastructure` - implementações de persistência e infra
 - `src/modules` - controllers e modules do Nest
+- `src/auth` - estratégias JWT, guards e decorators de autenticação
 - `src/dto` - objetos de transferência de dados e validações
 
 ## Rodando
@@ -37,7 +38,51 @@ API padrão: `http://localhost:3000`
 - Itens de transação têm nomes únicos
 - Não é possível remover um item de transação se houver transações associadas a ele
 
+## Autenticação e Autorização
+
+A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de acesso baseado em papéis (RBAC).
+
+### Papéis de usuário
+
+| Papel | Descrição |
+|-------|-----------|
+| `admin` | Administrador — pode criar novos usuários e acessar todos os recursos |
+| `user` | Usuário comum — pode acessar os recursos financeiros (transações, contas, categorias, itens) |
+
+### Usuário admin padrão (seed)
+- **Email:** `admin@mygoals.com`
+- **Senha:** `Admin@12345`
+- ⚠️ Troque a senha após o primeiro login em produção.
+
+### Fluxo
+1. `POST /auth/login` (público) → obtém `accessToken` (JWT com `role`, 15 min) e `refreshToken` (UUID, 7 dias)
+2. Use o `accessToken` no header `Authorization: Bearer` para acessar endpoints protegidos
+3. Quando o `accessToken` expirar, use `POST /auth/refresh` para obter novos tokens
+4. Cada refresh token é de uso único (rotation)
+
+### Segurança
+- Senhas armazenadas com bcrypt (12 salt rounds)
+- Role do usuário embutida no JWT — verificada a cada requisição
+- Guards JWT e RBAC globais aplicados a todas as rotas
+- Refresh tokens armazenados no banco e invalidados após uso
+
+### Variáveis de ambiente obrigatórias
+- `JWT_SECRET` — segredo para assinar os JWTs (**obrigatório em produção**)
+
 ## Endpoints
+
+### Auth (públicos — sem token)
+- `POST /auth/login` - autentica e retorna tokens (body: email, password)
+- `POST /auth/refresh` - renova tokens (body: refreshToken)
+
+### Auth (somente `admin`)
+- `POST /auth/register` - cria novo usuário (body: email, password, name, role?)
+
+### Auth (qualquer usuário autenticado)
+- `POST /auth/logout` - revoga refresh token (body: refreshToken)
+- `GET /auth/me` - retorna dados do usuário autenticado
+
+### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
 - GET `/transactions` - lista transações
 - POST `/categories` - cria categoria (body: name, description?)
@@ -52,10 +97,70 @@ API padrão: `http://localhost:3000`
 
 ## Testes com cURL
 
+### Login como admin (primeiro acesso)
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@mygoals.com",
+    "password": "Admin@12345"
+  }'
+```
+
+### Registrar um novo usuário (somente admin)
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token-do-admin>" \
+  -d '{
+    "name": "João Silva",
+    "email": "joao@email.com",
+    "password": "senha1234",
+    "role": "user"
+  }'
+```
+
+### Login
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "joao@email.com",
+    "password": "senha1234"
+  }'
+```
+Resposta: `{ "user": {...}, "accessToken": "...", "refreshToken": "..." }`
+
+### Renovar tokens (refresh)
+```bash
+curl -X POST http://localhost:3000/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "<seu-refresh-token>"
+  }'
+```
+
+### Logout
+```bash
+curl -X POST http://localhost:3000/auth/logout \
+  -H "Authorization: Bearer <seu-access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "<seu-refresh-token>"
+  }'
+```
+
+### Obter usuário autenticado
+```bash
+curl -X GET http://localhost:3000/auth/me \
+  -H "Authorization: Bearer <seu-access-token>"
+```
+
 ### Criar uma transação de receita
 ```bash
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "description": "Salário mensal",
     "amount": 5000.00,
@@ -72,6 +177,7 @@ curl -X POST http://localhost:3000/transactions \
 ```bash
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "amount": 150.50,
     "type": "expense",
@@ -84,13 +190,15 @@ curl -X POST http://localhost:3000/transactions \
 
 ### Listar todas as transações
 ```bash
-curl -X GET http://localhost:3000/transactions
+curl -X GET http://localhost:3000/transactions \
+  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ### Criar transação com data de vencimento diferente
 ```bash
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "description": "Cartão de crédito",
     "amount": 200.00,
@@ -105,13 +213,15 @@ curl -X POST http://localhost:3000/transactions \
 
 ### Listar todas as categorias
 ```bash
-curl -X GET http://localhost:3000/categories
+curl -X GET http://localhost:3000/categories \
+  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ### Criar uma nova categoria
 ```bash
 curl -X POST http://localhost:3000/categories \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "name": "Investimentos",
     "description": "Aplicações financeiras e investimentos"
@@ -120,13 +230,15 @@ curl -X POST http://localhost:3000/categories \
 
 ### Listar todas as contas
 ```bash
-curl -X GET http://localhost:3000/accounts
+curl -X GET http://localhost:3000/accounts \
+  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ### Criar uma nova conta
 ```bash
 curl -X POST http://localhost:3000/accounts \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "name": "Conta Corrente",
     "description": "Conta corrente do banco principal"
@@ -135,13 +247,15 @@ curl -X POST http://localhost:3000/accounts \
 
 ### Listar todos os itens de transação
 ```bash
-curl -X GET http://localhost:3000/transaction-items
+curl -X GET http://localhost:3000/transaction-items \
+  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ### Criar um novo item de transação
 ```bash
 curl -X POST http://localhost:3000/transaction-items \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "name": "Salário",
     "description": "Renda mensal do trabalho"
@@ -152,6 +266,7 @@ curl -X POST http://localhost:3000/transaction-items \
 ```bash
 curl -X PUT http://localhost:3000/transaction-items/1 \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
   -d '{
     "name": "Salário Atualizado",
     "description": "Renda mensal atualizada"
@@ -160,7 +275,8 @@ curl -X PUT http://localhost:3000/transaction-items/1 \
 
 ### Remover um item de transação
 ```bash
-curl -X DELETE http://localhost:3000/transaction-items/1
+curl -X DELETE http://localhost:3000/transaction-items/1 \
+  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ## Otimizações de Performance
@@ -182,6 +298,7 @@ curl -X DELETE http://localhost:3000/transaction-items/1
 - `DB_USERNAME=postgres`
 - `DB_PASSWORD=password`
 - `DB_DATABASE=js_mygoals_be`
+- `JWT_SECRET=<segredo-forte-aqui>` (**obrigatório em produção**)
 
 ## Migrations
 - Migrations executam automaticamente na inicialização quando `DB_MODE=postgres`
@@ -202,6 +319,13 @@ curl -X DELETE http://localhost:3000/transaction-items/1
   - Cria índices de consulta por `transactionItemId`, `accountId`, `categoryId` e composto `(dueDate, type)`
 - Sétima migração: `1704153600006-MakeTransactionDescriptionOptional.ts`
   - Torna o campo `description` da tabela `transactions` opcional (nullable)
+- Oitava migração: `1704153600007-CreateUserTable.ts`
+  - Cria tabela `users` (id UUID, email único, passwordHash, name)
+  - Índice em `email` para performance no login
+- Nona migração: `1704153600008-CreateRefreshTokenTable.ts`
+  - Cria tabela `refresh_tokens` (id UUID, token único, userId FK, expiresAt, revokedAt)
+  - Índices em `token` e `userId`
+  - Cascade delete ao remover usuário
 - Para reverter manualmente (dev):
   ```bash
   npx typeorm migration:revert -d dist/database/database.config.js

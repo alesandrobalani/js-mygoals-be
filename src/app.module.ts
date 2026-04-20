@@ -21,9 +21,12 @@ import { SeedDefaultCategories1704153600004 } from './database/migrations/170415
 import { AddTransactionDefaultPartition1704153600005 } from './database/migrations/1704153600005-AddTransactionDefaultPartition';
 import { CreateUserTable1704153600006 } from './database/migrations/1704153600006-CreateUserTable';
 import { CreateRefreshTokenTable1704153600007 } from './database/migrations/1704153600007-CreateRefreshTokenTable';
+import { AddRoleToUsers1704153600008 } from './database/migrations/1704153600008-AddRoleToUsers';
+import { SeedAdminUser1704153600009 } from './database/migrations/1704153600009-SeedAdminUser';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -55,6 +58,8 @@ const usePostgres = process.env.DB_MODE === 'postgres';
               AddTransactionDefaultPartition1704153600005,
               CreateUserTable1704153600006,
               CreateRefreshTokenTable1704153600007,
+              AddRoleToUsers1704153600008,
+              SeedAdminUser1704153600009,
             ],
             migrationsRun: false,
             synchronize: false,
@@ -73,6 +78,10 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

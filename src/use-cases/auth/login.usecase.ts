@@ -37,7 +37,7 @@ export class LoginUseCase {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens: TokenPair = await this.tokenService.generateTokenPair(user.id, user.email);
+    const tokens: TokenPair = await this.tokenService.generateTokenPair(user.id, user.email, user.role);
 
     this.logger.log(`User logged in successfully: ${user.id}`, 'LoginUseCase');
     return {

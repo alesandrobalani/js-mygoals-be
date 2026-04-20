@@ -6,7 +6,10 @@ import { GetTransactionItemsUseCase } from '../../use-cases/transaction-item/get
 import { GetTransactionItemUseCase } from '../../use-cases/transaction-item/get-transaction-item.usecase';
 import { UpdateTransactionItemUseCase } from '../../use-cases/transaction-item/update-transaction-item.usecase';
 import { DeleteTransactionItemUseCase } from '../../use-cases/transaction-item/delete-transaction-item.usecase';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { UserRole } from '../../domain/entities/user.entity';
 
+@Roles(UserRole.USER)
 @Controller('transaction-items')
 export class TransactionItemsController {
   private readonly logger = new Logger(TransactionItemsController.name);

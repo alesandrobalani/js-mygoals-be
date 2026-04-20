@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
 import { RefreshTokenRepository } from '../../domain/repositories/refresh-token.repository';
+import { UserRole } from '../../domain/entities/user.entity';
 
 export interface TokenPair {
   accessToken: string;
@@ -19,9 +20,9 @@ export class TokenService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  async generateTokenPair(userId: string, email: string): Promise<TokenPair> {
+  async generateTokenPair(userId: string, email: string, role: UserRole): Promise<TokenPair> {
     const accessToken = this.jwtService.sign(
-      { sub: userId, email },
+      { sub: userId, email, role },
       { expiresIn: '15m' },
     );
 

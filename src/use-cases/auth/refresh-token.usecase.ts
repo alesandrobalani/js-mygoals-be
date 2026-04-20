@@ -35,7 +35,7 @@ export class RefreshTokenUseCase {
 
     await this.refreshTokenRepository.revoke(storedToken.id);
 
-    const tokens: TokenPair = await this.tokenService.generateTokenPair(user.id, user.email);
+    const tokens: TokenPair = await this.tokenService.generateTokenPair(user.id, user.email, user.role);
 
     this.logger.log(`Token refreshed for user: ${user.id}`, 'RefreshTokenUseCase');
     return tokens;

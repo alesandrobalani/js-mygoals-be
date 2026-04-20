@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InMemoryUserRepository } from '../../infrastructure/persistence/in-memory/user.repository';
 import { InMemoryRefreshTokenRepository } from '../../infrastructure/persistence/in-memory/refresh-token.repository';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
-import { User } from '../../domain/entities/user.entity';
+import { User, UserRole } from '../../domain/entities/user.entity';
 import { RefreshTokenUseCase } from './refresh-token.usecase';
 import { TokenService } from './token.service';
 import { randomUUID } from 'crypto';
@@ -22,7 +22,7 @@ describe('RefreshTokenUseCase', () => {
     const { useCase, userRepository, refreshTokenRepository } = makeUseCase();
 
     const userId = randomUUID();
-    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', new Date()));
+    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', UserRole.USER, new Date()));
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const tokenValue = randomUUID();
@@ -39,7 +39,7 @@ describe('RefreshTokenUseCase', () => {
     const { useCase, userRepository, refreshTokenRepository } = makeUseCase();
 
     const userId = randomUUID();
-    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', new Date()));
+    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', UserRole.USER, new Date()));
 
     const expiresAt = new Date(Date.now() - 1000);
     const tokenValue = randomUUID();
@@ -52,7 +52,7 @@ describe('RefreshTokenUseCase', () => {
     const { useCase, userRepository, refreshTokenRepository } = makeUseCase();
 
     const userId = randomUUID();
-    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', new Date()));
+    await userRepository.create(new User(userId, 'user@example.com', 'hash', 'User', UserRole.USER, new Date()));
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const tokenValue = randomUUID();

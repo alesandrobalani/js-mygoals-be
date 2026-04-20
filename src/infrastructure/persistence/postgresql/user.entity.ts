@@ -1,4 +1,5 @@
 import { Entity, PrimaryColumn, Column, UpdateDateColumn } from 'typeorm';
+import { UserRole } from '../../../domain/entities/user.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -13,6 +14,9 @@ export class UserEntity {
 
   @Column()
   name!: string;
+
+  @Column({ default: UserRole.USER })
+  role!: UserRole;
 
   @UpdateDateColumn()
   updatedAt!: Date;

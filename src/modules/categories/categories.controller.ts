@@ -2,7 +2,10 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nest
 import { CreateCategoryDto } from '../../dto/create-category.dto';
 import { CreateCategoryUseCase } from '../../use-cases/category/create-category.usecase';
 import { GetCategoriesUseCase } from '../../use-cases/category/get-categories.usecase';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { UserRole } from '../../domain/entities/user.entity';
 
+@Roles(UserRole.USER)
 @Controller('categories')
 export class CategoriesController {
   private readonly logger = new Logger(CategoriesController.name);

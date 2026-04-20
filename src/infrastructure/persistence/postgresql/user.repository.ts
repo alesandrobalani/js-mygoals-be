@@ -21,22 +21,23 @@ export class PostgreSQLUserRepository implements UserRepository {
     entity.email = user.email;
     entity.passwordHash = user.passwordHash;
     entity.name = user.name;
+    entity.role = user.role;
 
     const saved = await this.userRepository.save(entity);
-    return new User(saved.id, saved.email, saved.passwordHash, saved.name, saved.updatedAt);
+    return new User(saved.id, saved.email, saved.passwordHash, saved.name, saved.role, saved.updatedAt);
   }
 
   async findByEmail(email: string): Promise<User | null> {
     this.logger.debug(`Finding user by email: ${email}`, 'PostgreSQLUserRepository');
     const entity = await this.userRepository.findOne({ where: { email } });
     if (!entity) return null;
-    return new User(entity.id, entity.email, entity.passwordHash, entity.name, entity.updatedAt);
+    return new User(entity.id, entity.email, entity.passwordHash, entity.name, entity.role, entity.updatedAt);
   }
 
   async findById(id: string): Promise<User | null> {
     this.logger.debug(`Finding user by ID: ${id}`, 'PostgreSQLUserRepository');
     const entity = await this.userRepository.findOne({ where: { id } });
     if (!entity) return null;
-    return new User(entity.id, entity.email, entity.passwordHash, entity.name, entity.updatedAt);
+    return new User(entity.id, entity.email, entity.passwordHash, entity.name, entity.role, entity.updatedAt);
   }
 }

@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { UserRole } from '../domain/entities/user.entity';
 
 export class RegisterDto {
   @Expose()
@@ -15,4 +16,9 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
+
+  @Expose()
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
 }

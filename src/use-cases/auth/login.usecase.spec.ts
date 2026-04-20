@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InMemoryUserRepository } from '../../infrastructure/persistence/in-memory/user.repository';
 import { InMemoryRefreshTokenRepository } from '../../infrastructure/persistence/in-memory/refresh-token.repository';
-import { User } from '../../domain/entities/user.entity';
+import { User, UserRole } from '../../domain/entities/user.entity';
 import { LoginUseCase } from './login.usecase';
 import { TokenService } from './token.service';
 import { randomUUID } from 'crypto';
@@ -16,7 +16,7 @@ async function makeUseCase() {
   const useCase = new LoginUseCase(userRepository as any, tokenService);
 
   const passwordHash = await bcrypt.hash('correct-password', 12);
-  await userRepository.create(new User(randomUUID(), 'user@example.com', passwordHash, 'Test User', new Date()));
+  await userRepository.create(new User(randomUUID(), 'user@example.com', passwordHash, 'Test User', UserRole.USER, new Date()));
 
   return { useCase };
 }
