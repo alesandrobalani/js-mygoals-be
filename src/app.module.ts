@@ -91,6 +91,8 @@ export class AppModule implements NestModule {
   async onModuleInit() {
     if (process.env.DB_MODE === 'postgres') {
       await this.databaseService.runMigrations();
+    } else {
+      await this.databaseService.seedInMemoryAdmin();
     }
   }
 
