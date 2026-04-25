@@ -5,6 +5,14 @@ export interface TransactionByTypeSummary {
   expense: number;
 }
 
+export interface PaginatedTransactions {
+  data: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface TransactionRepository {
   create(transaction: Transaction): Promise<Transaction>;
   findAll(): Promise<Transaction[]>;
@@ -12,4 +20,5 @@ export interface TransactionRepository {
   existsByAccountId(accountId: string): Promise<boolean>;
   existsByTransactionItemId(transactionItemId: string): Promise<boolean>;
   findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary>;
+  findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions>;
 }

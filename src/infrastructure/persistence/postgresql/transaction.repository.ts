@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TransactionRepository, TransactionByTypeSummary } from '../../../domain/repositories/transaction.repository';
+import { Between, Repository } from 'typeorm';
+import { TransactionRepository, TransactionByTypeSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -147,6 +147,40 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
   async existsByTransactionItemId(transactionItemId: string): Promise<boolean> {
     return this.transactionRepository.exists({ where: { transactionItemId } });
+  }
+
+  async findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions> {
+    this.logger.debug(`Searching transactions from ${startDate} to ${endDate} page=${page} limit=${limit}`, 'PostgreSQLTransactionRepository');
+
+    const skip = (page - 1) * limit;
+
+    const [entities, total] = await this.transactionRepository.findAndCount({
+      where: { transactionDate: Between(startDate, endDate) },
+      relations: ['category', 'account', 'transactionItem'],
+      order: { transactionDate: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    const data = entities.map(entity => ({
+      id: entity.id,
+      description: entity.description || undefined,
+      amount: entity.amount,
+      type: entity.type,
+      category: entity.category,
+      transactionItem: new TransactionItem(
+        entity.transactionItem.id,
+        entity.transactionItem.name,
+        entity.transactionItem.description,
+        entity.transactionItem.updatedAt,
+      ),
+      transactionDate: entity.transactionDate,
+      account: entity.account,
+      updatedAt: entity.updatedAt,
+      dueDate: entity.dueDate || entity.transactionDate,
+    }));
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TransactionsController } from './transactions.controller';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
-import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
 import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-period.usecase';
+import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/find-transactions-by-period.usecase';
 import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
 import { InMemoryTransactionItemRepository } from '../../infrastructure/persistence/in-memory/transaction-item.repository';
 import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-memory/category.repository';
@@ -37,8 +37,8 @@ import { DeleteAccountUseCase } from '../../use-cases/account/delete-account.use
       useExisting: InMemoryAccountRepository,
     },
     CreateTransactionUseCase,
-    GetTransactionsUseCase,
     GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
+    FindTransactionsByPeriodUseCase,
     CreateAccountUseCase,
     GetAccountsUseCase,
     UpdateAccountUseCase,

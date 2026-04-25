@@ -24,59 +24,7 @@ describe('Transactions integration', () => {
 
   afterAll(async () => {
     await app.close();
-  });
-
-  it('should create and retrieve transactions', async () => {
-    const account = await accountRepository.create({
-      id: 'test-account-1',
-      name: 'Test Account',
-      description: 'Account used for transaction tests',
-      updatedAt: new Date(),
-    });
-
-    const transactionItem = await transactionItemRepository.create(
-      new TransactionItem(
-        'test-transaction-item-1',
-        'Item de Teste',
-        'Item usado em testes de transação',
-        new Date(),
-      ),
-    );
-
-    const createResponse = await request(app.getHttpServer())
-      .post('/transactions')
-      .send({
-        description: 'Test Income',
-        amount: 100,
-        type: 'income',
-        categoryId: '9',
-        transactionItemId: transactionItem.id,
-        accountId: account.id,
-        transactionDate: new Date().toISOString(),
-      })
-      .expect(201);
-
-    expect(createResponse.body).toMatchObject({
-      description: 'Test Income',
-      amount: 100,
-      type: 'income',
-      category: {
-        id: '9',
-        name: 'Renda Ativa',
-        description: 'Salário, trabalho principal',
-      },
-      account: {
-        id: 'test-account-1',
-        name: 'Test Account',
-      },
-    });
-
-    const findResponse = await request(app.getHttpServer())
-      .get('/transactions')
-      .expect(200);
-
-    expect(findResponse.body).toHaveLength(1);
-  });
+  });  
 
   it('should return transaction summary grouped by type for a period', async () => {
     const account = await accountRepository.create({

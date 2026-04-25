@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Transaction } from '../../../domain/entities/transaction.entity';
-import { TransactionRepository, TransactionByTypeSummary } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { TransactionType } from '../../../dto/create-transaction.dto';
 
 @Injectable()
@@ -26,6 +26,18 @@ export class InMemoryTransactionRepository implements TransactionRepository {
 
   async existsByTransactionItemId(transactionItemId: string): Promise<boolean> {
     return this.transactions.some(transaction => transaction.transactionItem.id === transactionItemId);
+  }
+
+  async findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions> {
+    const filtered = this.transactions
+      .filter(t => t.transactionDate >= startDate && t.transactionDate <= endDate)
+      .sort((a, b) => b.transactionDate.getTime() - a.transactionDate.getTime());
+
+    const total = filtered.length;
+    const skip = (page - 1) * limit;
+    const data = filtered.slice(skip, skip + limit);
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {
