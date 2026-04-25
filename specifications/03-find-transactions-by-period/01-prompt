@@ -1,0 +1,5 @@
+Adicione a funcionalidade de busca da soma do valor de transações agrupadas por despesas e receitas de um período de datas.
+Para a pesquisa por datas de transações, avalie a criação de um índice que de performance a esta operação.
+Crie os testes automatizados para cobertura desta funcionalidade.
+Caso seja criado índice de banco, adicione o migration.
+Atualize o README do projeto.
