@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsController } from './transactions.controller';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
 import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
+import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-period.usecase';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { CategoriesModule } from '../categories/categories.module';
 import { DatabaseModule } from '../database/database.module';
@@ -19,6 +20,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
   providers: [
     CreateTransactionUseCase,
     GetTransactionsUseCase,
+    GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
   ],
 })
 export class TransactionsModule {}

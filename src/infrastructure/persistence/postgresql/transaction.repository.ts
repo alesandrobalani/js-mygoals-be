@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransactionRepository } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeSummary } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -147,5 +147,24 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
   async existsByTransactionItemId(transactionItemId: string): Promise<boolean> {
     return this.transactionRepository.exists({ where: { transactionItemId } });
+  }
+
+  async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {
+    this.logger.debug(`Retrieving transaction summary from ${startDate} to ${endDate}`, 'PostgreSQLTransactionRepository');
+
+    const rows = await this.transactionRepository
+      .createQueryBuilder('t')
+      .select('t.type', 'type')
+      .addSelect('SUM(t.amount)', 'total')
+      .where('t.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('t.type')
+      .getRawMany<{ type: string; total: string }>();
+
+    const result: TransactionByTypeSummary = { income: 0, expense: 0 };
+    for (const row of rows) {
+      if (row.type === 'income') result.income = Number(row.total);
+      if (row.type === 'expense') result.expense = Number(row.total);
+    }
+    return result;
   }
 }
