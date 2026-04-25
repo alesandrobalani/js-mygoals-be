@@ -6,6 +6,10 @@ import { TransactionItemRepository } from '../../../domain/repositories/transact
 export class InMemoryTransactionItemRepository implements TransactionItemRepository {
   private transactionItems: TransactionItem[] = [];
 
+  clear(): void {
+    this.transactionItems = [];
+  }
+
   async create(item: TransactionItem): Promise<TransactionItem> {
     this.transactionItems.push(item);
     return item;

@@ -6,7 +6,11 @@ import { TransactionType } from '../../../dto/create-transaction.dto';
 @Injectable()
 export class InMemoryTransactionRepository implements TransactionRepository {
   private transactions: Transaction[] = [];
-
+  
+  clear(): void {
+    this.transactions = [];
+  }
+  
   async create(transaction: Transaction): Promise<Transaction> {
     this.transactions.push(transaction);
     return transaction;

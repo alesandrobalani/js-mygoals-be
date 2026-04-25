@@ -6,6 +6,10 @@ import { Account } from '../../../domain/entities/account.entity';
 export class InMemoryAccountRepository implements AccountRepository {
   private accounts: Account[] = [];
 
+  clear(): void {
+    this.accounts = [];
+  }
+
   async create(account: Account): Promise<Account> {
     this.accounts.push(account);
     return account;
