@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Transaction } from '../../../domain/entities/transaction.entity';
-import { TransactionRepository, TransactionByTypeSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { TransactionType } from '../../../dto/create-transaction.dto';
 
 @Injectable()
@@ -44,17 +44,19 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {
+  async findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary> {
     const filtered = this.transactions.filter(
       t => t.transactionDate >= startDate && t.transactionDate <= endDate,
     );
     return filtered.reduce(
       (acc, t) => {
-        if (t.type === TransactionType.INCOME) acc.income += t.amount;
-        else acc.expense += t.amount;
+        if (t.type === TransactionType.INCOME && t.settled) acc.incomeSettled += t.amount;
+        if (t.type === TransactionType.INCOME && !t.settled) acc.incomeNotSettled+= t.amount;
+        if (t.type === TransactionType.EXPENSE && t.settled) acc.expenseSettled += t.amount;
+        if (t.type === TransactionType.EXPENSE && !t.settled) acc.expenseNotSettled += t.amount;
         return acc;
       },
-      { income: 0, expense: 0 },
+      { incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 0, expenseNotSettled: 0 },
     );
   }
 }

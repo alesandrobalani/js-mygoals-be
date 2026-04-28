@@ -76,7 +76,7 @@ describe('Transactions integration', () => {
       .query({ startDate: '2024-01-01', endDate: '2024-12-31' })
       .expect(200);
 
-    expect(summaryResponse.body).toMatchObject({ income: 4000, expense: 1200 });
+    expect(summaryResponse.body).toMatchObject({ incomeSettled: 1000, incomeNotSettled: 3000, expenseSettled: 1200, expenseNotSettled: 0 });
   });
 
   it('should search transactions by period with pagination', async () => {

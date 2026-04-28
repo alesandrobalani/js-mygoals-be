@@ -42,7 +42,7 @@ export class TransactionsController {
 
     try {
       const result = await this.getTransactionsSummaryByPeriod.execute(query.startDate, query.endDate);
-      this.logger.log(`Summary retrieved: income=${result.income}, expense=${result.expense}`, 'TransactionsController');
+      this.logger.log(`Summary retrieved: incomeSettled=${result.incomeSettled}, incomeNotSettled=${result.incomeNotSettled}, expenseSettled=${result.expenseSettled}, expenseNotSettled=${result.expenseNotSettled}`, 'TransactionsController');
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

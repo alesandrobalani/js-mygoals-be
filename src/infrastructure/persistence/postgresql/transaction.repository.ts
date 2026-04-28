@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
-import { TransactionRepository, TransactionByTypeSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -188,7 +188,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {
+  async findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary> {
     this.logger.debug(`Retrieving transaction summary from ${startDate} to ${endDate}`, 'PostgreSQLTransactionRepository');
 
     const rows = await this.transactionRepository
@@ -197,12 +197,15 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       .addSelect('SUM(t.amount)', 'total')
       .where('t.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('t.type')
-      .getRawMany<{ type: string; total: string }>();
+      .addGroupBy('t.settled')
+      .getRawMany<{ type: string; settled: boolean; total: string }>();
 
-    const result: TransactionByTypeSummary = { income: 0, expense: 0 };
+    const result: TransactionByTypeAndSettledSummary = { incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 0, expenseNotSettled: 0 };
     for (const row of rows) {
-      if (row.type === 'income') result.income = Number(row.total);
-      if (row.type === 'expense') result.expense = Number(row.total);
+      if (row.type === 'income' && row.settled) result.incomeSettled = Number(row.total);
+      if (row.type === 'income' && !row.settled) result.incomeNotSettled = Number(row.total);
+      if (row.type === 'expense' && row.settled) result.expenseSettled = Number(row.total);
+      if (row.type === 'expense' && !row.settled) result.expenseNotSettled = Number(row.total);
     }
     return result;
   }
