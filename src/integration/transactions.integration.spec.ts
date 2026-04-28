@@ -56,19 +56,19 @@ describe('Transactions integration', () => {
     };
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Salário', amount: 3000, type: 'income', transactionDate: '2024-03-10' })
+      .send({ ...basePayload, description: 'Salário', amount: 3000, type: 'income', transactionDate: '2024-03-10', settled: false })
       .expect(201);
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Freelance', amount: 1000, type: 'income', transactionDate: '2024-07-20' })
+      .send({ ...basePayload, description: 'Freelance', amount: 1000, type: 'income', transactionDate: '2024-07-20', settled: true })
       .expect(201);
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Aluguel', amount: 1200, type: 'expense', transactionDate: '2024-04-05' })
+      .send({ ...basePayload, description: 'Aluguel', amount: 1200, type: 'expense', transactionDate: '2024-04-05', settled: true })
       .expect(201);
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'income', transactionDate: '2023-12-01' })
+      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'income', transactionDate: '2023-12-01', settled: true })
       .expect(201);
 
     const summaryResponse = await request(app.getHttpServer())
@@ -100,12 +100,12 @@ describe('Transactions integration', () => {
     for (let month = 1; month <= 5; month++) {
       const paddedMonth = String(month).padStart(2, '0');
       await request(app.getHttpServer()).post('/transactions')
-        .send({ ...basePayload, description: `Tx ${month}`, amount: month * 100, type: 'income', transactionDate: `2024-${paddedMonth}-15` })
+        .send({ ...basePayload, description: `Tx ${month}`, amount: month * 100, type: 'income', transactionDate: `2024-${paddedMonth}-15`, settled: true })
         .expect(201);
     }
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'expense', transactionDate: '2023-06-01' })
+      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'expense', transactionDate: '2023-06-01', settled: false })
       .expect(201);
 
     const page1 = await request(app.getHttpServer())

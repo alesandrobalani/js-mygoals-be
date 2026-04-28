@@ -60,6 +60,7 @@ describe('DeleteAccountUseCase', () => {
       account,
       new Date(),
       new Date(),
+      true
     );
 
     await transactionRepository.create(transaction);

@@ -17,7 +17,7 @@ const makeTransaction = (
   const item = new TransactionItem('item1', 'Item', undefined, new Date());
   return new Transaction(
     randomUUID(), 'desc', amount, type, category, item,
-    transactionDate, account, new Date(), transactionDate,
+    transactionDate, account, new Date(), transactionDate, true
   );
 };
 

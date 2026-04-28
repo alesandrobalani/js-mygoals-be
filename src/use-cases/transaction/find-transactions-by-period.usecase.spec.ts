@@ -14,7 +14,7 @@ const item = new TransactionItem('item1', 'Item', undefined, new Date());
 const makeTransaction = (amount: number, transactionDate: Date): Transaction =>
   new Transaction(
     randomUUID(), 'desc', amount, TransactionType.INCOME,
-    category, item, transactionDate, account, new Date(), transactionDate,
+    category, item, transactionDate, account, new Date(), transactionDate, true
   );
 
 describe('FindTransactionsByPeriodUseCase', () => {

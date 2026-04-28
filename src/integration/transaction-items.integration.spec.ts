@@ -73,7 +73,7 @@ describe('TransactionItems integration', () => {
 
     await transactionRepository.create(new Transaction(
       randomUUID(), 'tx', 100, TransactionType.EXPENSE,
-      category, item, new Date(), account, new Date(), new Date(),
+      category, item, new Date(), account, new Date(), new Date(), true
     ));
 
     const deleteResponse = await request(app.getHttpServer())

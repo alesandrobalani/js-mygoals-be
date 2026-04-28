@@ -30,6 +30,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     entity.accountId = transaction.account.id;
     entity.transactionDate = transaction.transactionDate;
     entity.dueDate = transaction.dueDate;
+    entity.settled = transaction.settled;
 
     try {
       const savedEntity = await this.transactionRepository.save(entity);
@@ -59,6 +60,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: loadedEntity.account,
         updatedAt: loadedEntity.updatedAt,
         dueDate: loadedEntity.dueDate || loadedEntity.transactionDate,
+        settled: loadedEntity.settled
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -93,6 +95,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: entity.account,
         updatedAt: entity.updatedAt,
         dueDate: entity.dueDate || entity.transactionDate,
+        settled: entity.settled
       }));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -132,6 +135,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: entity.account,
         updatedAt: entity.updatedAt,
         dueDate: entity.dueDate || entity.transactionDate,
+        settled: entity.settled
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -178,6 +182,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       account: entity.account,
       updatedAt: entity.updatedAt,
       dueDate: entity.dueDate || entity.transactionDate,
+      settled: entity.settled
     }));
 
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };

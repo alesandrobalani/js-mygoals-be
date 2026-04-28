@@ -50,4 +50,7 @@ export class TransactionEntity {
 
   @Column({ type: 'date' })
   dueDate!: Date;
+
+  @Column({type: 'boolean'})
+  settled!: Boolean;
 }
