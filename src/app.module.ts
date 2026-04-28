@@ -24,6 +24,7 @@ import { CreateRefreshTokenTable1704153600007 } from './database/migrations/1704
 import { AddRoleToUsers1704153600008 } from './database/migrations/1704153600008-AddRoleToUsers';
 import { SeedAdminUser1704153600009 } from './database/migrations/1704153600009-SeedAdminUser';
 import { AddTransactionDateIndex1704153600010 } from './database/migrations/1704153600010-AddTransactionDateIndex';
+import { AddSettledTransactionColumn1704153600011 } from './database/migrations/1704153600011-AddSettledTransactionColumn';  
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
@@ -62,6 +63,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
               AddRoleToUsers1704153600008,
               SeedAdminUser1704153600009,
               AddTransactionDateIndex1704153600010,
+              AddSettledTransactionColumn1704153600011,
             ],
             migrationsRun: false,
             synchronize: false,
