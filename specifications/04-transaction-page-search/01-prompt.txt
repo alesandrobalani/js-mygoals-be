@@ -1,0 +1,5 @@
+Crie uma funcão de pesquisa pagina de transações com o filtro de período.
+A quantidade máxima permitida de registros será de 100.
+Para a pesquisa o usuário deve ser autenticado e com permissão de acesso a funcionalidade.
+Criar os testes automatizados.
+Atualizar o readme.

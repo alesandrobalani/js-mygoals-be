@@ -52,6 +52,7 @@ export class CreateTransactionUseCase {
         account,
         new Date(),
         payload.dueDate !== undefined ? payload.dueDate : payload.transactionDate,
+        payload.settled
     );
 
     try {

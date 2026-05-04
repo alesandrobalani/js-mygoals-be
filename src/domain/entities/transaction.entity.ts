@@ -15,5 +15,6 @@ export class Transaction {
     public readonly account: Account,
     public readonly updatedAt: Date,
     public readonly dueDate: Date,
+    public readonly settled: Boolean
   ) {}
 }

@@ -1,9 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Query } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { TransactionSummaryQueryDto as TransactionPeriodDto } from '../../dto/transaction-summary-query.dto';
+import { FindTransactionsByPeriodDto } from '../../dto/find-transactions-by-period.dto';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
-import { GetTransactionsUseCase } from '../../use-cases/transaction/get-transactions.usecase';
 import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-period.usecase';
+import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/find-transactions-by-period.usecase';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserRole } from '../../domain/entities/user.entity';
 
@@ -14,8 +15,8 @@ export class TransactionsController {
 
   constructor(
     private readonly createTransaction: CreateTransactionUseCase,
-    private readonly getTransactions: GetTransactionsUseCase,
     private readonly getTransactionsSummaryByPeriod: GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
+    private readonly findTransactionsByPeriod: FindTransactionsByPeriodUseCase,
   ) {}
 
   @Post()
@@ -41,7 +42,7 @@ export class TransactionsController {
 
     try {
       const result = await this.getTransactionsSummaryByPeriod.execute(query.startDate, query.endDate);
-      this.logger.log(`Summary retrieved: income=${result.income}, expense=${result.expense}`, 'TransactionsController');
+      this.logger.log(`Summary retrieved: incomeSettled=${result.incomeSettled}, incomeNotSettled=${result.incomeNotSettled}, expenseSettled=${result.expenseSettled}, expenseNotSettled=${result.expenseNotSettled}`, 'TransactionsController');
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -51,19 +52,23 @@ export class TransactionsController {
     }
   }
 
-  @Get()
-  async findAll() {
-    this.logger.log('GET /transactions - Retrieving all transactions', 'TransactionsController');
+  @Get('search')
+  async search(@Query() query: FindTransactionsByPeriodDto) {
+    this.logger.log(
+      `GET /transactions/search - startDate=${query.startDate}, endDate=${query.endDate}, page=${query.page}, limit=${query.limit}`,
+      'TransactionsController',
+    );
 
     try {
-      const transactions = await this.getTransactions.execute();
-      this.logger.log(`Retrieved ${transactions.length} transactions`, 'TransactionsController');
-      return transactions;
+      const result = await this.findTransactionsByPeriod.execute(query.startDate, query.endDate, query.page, query.limit);
+      this.logger.log(`Found ${result.total} transactions (page ${result.page}/${result.totalPages})`, 'TransactionsController');
+      return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(`Failed to retrieve transactions: ${errorMessage}`, errorStack, 'TransactionsController');
+      this.logger.error(`Failed to search transactions: ${errorMessage}`, errorStack, 'TransactionsController');
       throw error;
     }
   }
+
 }

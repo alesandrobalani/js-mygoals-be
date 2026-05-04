@@ -84,7 +84,6 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 
 ### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
-- GET `/transactions` - lista transações
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias
 - POST `/accounts` - cria conta (body: name, description?)
@@ -186,12 +185,6 @@ curl -X POST http://localhost:3000/transactions \
     "transactionDate": "2024-01-10",
     "accountId": "1"
   }'
-```
-
-### Listar todas as transações
-```bash
-curl -X GET http://localhost:3000/transactions \
-  -H "Authorization: Bearer <seu-access-token>"
 ```
 
 ### Criar transação com data de vencimento diferente

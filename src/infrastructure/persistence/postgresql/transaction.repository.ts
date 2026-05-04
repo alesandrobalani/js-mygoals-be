@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TransactionRepository, TransactionByTypeSummary } from '../../../domain/repositories/transaction.repository';
+import { Between, Repository } from 'typeorm';
+import { TransactionRepository, TransactionByTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -30,6 +30,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     entity.accountId = transaction.account.id;
     entity.transactionDate = transaction.transactionDate;
     entity.dueDate = transaction.dueDate;
+    entity.settled = transaction.settled;
 
     try {
       const savedEntity = await this.transactionRepository.save(entity);
@@ -59,6 +60,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: loadedEntity.account,
         updatedAt: loadedEntity.updatedAt,
         dueDate: loadedEntity.dueDate || loadedEntity.transactionDate,
+        settled: loadedEntity.settled
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -93,6 +95,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: entity.account,
         updatedAt: entity.updatedAt,
         dueDate: entity.dueDate || entity.transactionDate,
+        settled: entity.settled
       }));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -132,6 +135,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
         account: entity.account,
         updatedAt: entity.updatedAt,
         dueDate: entity.dueDate || entity.transactionDate,
+        settled: entity.settled
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -149,7 +153,42 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     return this.transactionRepository.exists({ where: { transactionItemId } });
   }
 
-  async findSumByPeriodGroupByType(startDate: Date, endDate: Date): Promise<TransactionByTypeSummary> {
+  async findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions> {
+    this.logger.debug(`Searching transactions from ${startDate} to ${endDate} page=${page} limit=${limit}`, 'PostgreSQLTransactionRepository');
+
+    const skip = (page - 1) * limit;
+
+    const [entities, total] = await this.transactionRepository.findAndCount({
+      where: { transactionDate: Between(startDate, endDate) },
+      relations: ['category', 'account', 'transactionItem'],
+      order: { transactionDate: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    const data = entities.map(entity => ({
+      id: entity.id,
+      description: entity.description || undefined,
+      amount: entity.amount,
+      type: entity.type,
+      category: entity.category,
+      transactionItem: new TransactionItem(
+        entity.transactionItem.id,
+        entity.transactionItem.name,
+        entity.transactionItem.description,
+        entity.transactionItem.updatedAt,
+      ),
+      transactionDate: entity.transactionDate,
+      account: entity.account,
+      updatedAt: entity.updatedAt,
+      dueDate: entity.dueDate || entity.transactionDate,
+      settled: entity.settled
+    }));
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+  }
+
+  async findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary> {
     this.logger.debug(`Retrieving transaction summary from ${startDate} to ${endDate}`, 'PostgreSQLTransactionRepository');
 
     const rows = await this.transactionRepository
@@ -158,12 +197,15 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       .addSelect('SUM(t.amount)', 'total')
       .where('t.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('t.type')
-      .getRawMany<{ type: string; total: string }>();
+      .addGroupBy('t.settled')
+      .getRawMany<{ type: string; settled: boolean; total: string }>();
 
-    const result: TransactionByTypeSummary = { income: 0, expense: 0 };
+    const result: TransactionByTypeAndSettledSummary = { incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 0, expenseNotSettled: 0 };
     for (const row of rows) {
-      if (row.type === 'income') result.income = Number(row.total);
-      if (row.type === 'expense') result.expense = Number(row.total);
+      if (row.type === 'income' && row.settled) result.incomeSettled = Number(row.total);
+      if (row.type === 'income' && !row.settled) result.incomeNotSettled = Number(row.total);
+      if (row.type === 'expense' && row.settled) result.expenseSettled = Number(row.total);
+      if (row.type === 'expense' && !row.settled) result.expenseNotSettled = Number(row.total);
     }
     return result;
   }

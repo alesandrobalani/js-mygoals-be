@@ -103,6 +103,7 @@ describe('Accounts integration', () => {
       account,
       new Date(),
       new Date(),
+      true
     );
 
     await transactionRepository.create(transaction);

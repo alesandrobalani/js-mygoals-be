@@ -1,0 +1,1 @@
+- Ao invés de usar em memória, será que conseguimos ter um repository único e usar H2, esta duplicando muito código.
