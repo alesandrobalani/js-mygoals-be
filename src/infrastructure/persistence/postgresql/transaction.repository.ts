@@ -194,6 +194,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     const rows = await this.transactionRepository
       .createQueryBuilder('t')
       .select('t.type', 'type')
+      .addSelect('t.settled', 'settled')
       .addSelect('SUM(t.amount)', 'total')
       .where('t.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('t.type')
