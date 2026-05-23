@@ -1,8 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
+import { UpdateTransactionDto } from '../../dto/update-transaction.dto';
 import { TransactionSummaryQueryDto as TransactionPeriodDto } from '../../dto/transaction-summary-query.dto';
 import { FindTransactionsByPeriodDto } from '../../dto/find-transactions-by-period.dto';
 import { CreateTransactionUseCase } from '../../use-cases/transaction/create-transaction.usecase';
+import { UpdateTransactionUseCase } from '../../use-cases/transaction/update-transaction.usecase';
 import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-period.usecase';
 import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/find-transactions-by-period.usecase';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -15,6 +17,7 @@ export class TransactionsController {
 
   constructor(
     private readonly createTransaction: CreateTransactionUseCase,
+    private readonly updateTransaction: UpdateTransactionUseCase,
     private readonly getTransactionsSummaryByPeriod: GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
     private readonly findTransactionsByPeriod: FindTransactionsByPeriodUseCase,
   ) {}
@@ -32,6 +35,22 @@ export class TransactionsController {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Failed to create transaction: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }
+
+  @Put(':id')
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateTransactionDto) {
+    this.logger.log(`PUT /transactions/${id} - Updating transaction`, 'TransactionsController');
+
+    try {
+      const result = await this.updateTransaction.execute({ id, ...payload });
+      this.logger.log(`Transaction updated successfully: ${result.id}`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to update transaction: ${errorMessage}`, errorStack, 'TransactionsController');
       throw error;
     }
   }

@@ -17,6 +17,7 @@ export interface PaginatedTransactions {
 
 export interface TransactionRepository {
   create(transaction: Transaction): Promise<Transaction>;
+  update(transaction: Transaction): Promise<Transaction>;
   findById(id: string): Promise<Transaction | null>;
   existsByAccountId(accountId: string): Promise<boolean>;
   existsByTransactionItemId(transactionItemId: string): Promise<boolean>;
