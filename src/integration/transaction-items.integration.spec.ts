@@ -1,18 +1,26 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { TestTransactionItemsModule } from '../modules/transaction-items/test-transaction-items.module';
-import { InMemoryTransactionRepository } from '../infrastructure/persistence/in-memory/transaction.repository';
+import { TransactionRepository } from '../domain/repositories/transaction.repository';
+import { AccountRepository } from '../domain/repositories/account.repository';
 import { Transaction } from '../domain/entities/transaction.entity';
 import { Account } from '../domain/entities/account.entity';
 import { Category } from '../domain/entities/category.entity';
 import { TransactionItem } from '../domain/entities/transaction-item.entity';
 import { TransactionType } from '../dto/create-transaction.dto';
+import { TransactionEntity } from '../infrastructure/persistence/postgresql/transaction.entity';
+import { AccountEntity } from '../infrastructure/persistence/postgresql/account.entity';
+import { TransactionItemEntity } from '../infrastructure/persistence/postgresql/transaction-item.entity';
 import { randomUUID } from 'crypto';
+import { seedTestCategories } from '../test-utils/test-datasource';
 
 describe('TransactionItems integration', () => {
   let app: INestApplication;
-  let transactionRepository: InMemoryTransactionRepository;
+  let dataSource: DataSource;
+  let transactionRepository: TransactionRepository;
+  let accountRepository: AccountRepository;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -21,12 +29,21 @@ describe('TransactionItems integration', () => {
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
-    transactionRepository = moduleRef.get(InMemoryTransactionRepository);
+    dataSource = moduleRef.get(DataSource, { strict: false });
+    transactionRepository = moduleRef.get<TransactionRepository>('TransactionRepository');
+    accountRepository = moduleRef.get<AccountRepository>('AccountRepository');
     await app.init();
+    await seedTestCategories(dataSource);
   });
 
   afterAll(async () => {
     await app.close();
+  });
+
+  beforeEach(async () => {
+    await dataSource.getRepository(TransactionEntity).clear();
+    await dataSource.getRepository(AccountEntity).clear();
+    await dataSource.getRepository(TransactionItemEntity).clear();
   });
 
   it('should create, list, retrieve, update and delete a transaction item', async () => {
@@ -68,12 +85,15 @@ describe('TransactionItems integration', () => {
 
     const itemId = createResponse.body.id;
     const item = new TransactionItem(itemId, 'Item Com Transação', undefined, new Date());
-    const account = new Account('acc1', 'Conta', undefined, new Date());
-    const category = new Category('1', 'Categoria', undefined, new Date());
+
+    const account = await accountRepository.create(
+      new Account(randomUUID(), 'Conta Auxiliar', undefined, new Date()),
+    );
 
     await transactionRepository.create(new Transaction(
       randomUUID(), 'tx', 100, TransactionType.EXPENSE,
-      category, item, new Date(), account, new Date(), new Date(), true
+      new Category('1', 'Habitação', 'Despesas relacionadas à moradia', new Date()),
+      item, new Date(), account, new Date(), new Date(), true,
     ));
 
     const deleteResponse = await request(app.getHttpServer())
