@@ -24,7 +24,6 @@ services:
       DB_DATABASE: js_mygoals_be
     ports:
       - '3000:3000'
-    command: npm run start:dev
 
 volumes:
   pgdata:
