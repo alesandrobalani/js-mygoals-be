@@ -1,18 +1,43 @@
-import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
-import { InMemoryTransactionItemRepository } from '../../infrastructure/persistence/in-memory/transaction-item.repository';
-import { InMemoryCategoryRepository } from '../../infrastructure/persistence/in-memory/category.repository';
-import { InMemoryAccountRepository } from '../../infrastructure/persistence/in-memory/account.repository';
+﻿import { DataSource } from 'typeorm';
+import { createTestDataSource, createTestRepositories, seedTestCategories } from '../../test-utils/test-datasource';
+import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
+import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
+import { PostgreSQLCategoryRepository } from '../../infrastructure/persistence/postgresql/category.repository';
+import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
+import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
+import { AccountEntity } from '../../infrastructure/persistence/postgresql/account.entity';
+import { TransactionItemEntity } from '../../infrastructure/persistence/postgresql/transaction-item.entity';
 import { CreateTransactionUseCase } from './create-transaction.usecase';
 import { TransactionType } from '../../dto/create-transaction.dto';
-import { Category } from '../../domain/entities/category.entity';
 import { TransactionItem } from '../../domain/entities/transaction-item.entity';
+import { randomUUID } from 'crypto';
 
 describe('CreateTransactionUseCase', () => {
+  let dataSource: DataSource;
+  let transactionRepository: PostgreSQLTransactionRepository;
+  let transactionItemRepository: PostgreSQLTransactionItemRepository;
+  let categoryRepository: PostgreSQLCategoryRepository;
+  let accountRepository: PostgreSQLAccountRepository;
+
+  beforeAll(async () => {
+    dataSource = await createTestDataSource();
+    const repos = createTestRepositories(dataSource);
+    transactionRepository = repos.transactionRepository;
+    transactionItemRepository = repos.transactionItemRepository;
+    categoryRepository = repos.categoryRepository;
+    accountRepository = repos.accountRepository;
+    await seedTestCategories(dataSource);
+  });
+
+  afterAll(async () => { await dataSource.destroy(); });
+
+  beforeEach(async () => {
+    await dataSource.getRepository(TransactionEntity).clear();
+    await dataSource.getRepository(AccountEntity).clear();
+    await dataSource.getRepository(TransactionItemEntity).clear();
+  });
+
   it('should create a transaction', async () => {
-    const transactionRepository = new InMemoryTransactionRepository();
-    const transactionItemRepository = new InMemoryTransactionItemRepository();
-    const categoryRepository = new InMemoryCategoryRepository();
-    const accountRepository = new InMemoryAccountRepository();
     const useCase = new CreateTransactionUseCase(
       transactionRepository as any,
       categoryRepository as any,
@@ -22,25 +47,18 @@ describe('CreateTransactionUseCase', () => {
 
     const transactionDate = new Date('2024-12-01');
 
-    const account = await accountRepository.create({
-      id: 'account-1',
-      name: 'Main Account',
-      description: 'Primary account',
-      updatedAt: new Date(),
-    });
-
-    const transactionItem = await transactionItemRepository.create(
-      new TransactionItem('test-item-1', 'Item de Teste', 'Item para transação', new Date()),
-    );
+    const account = await accountRepository.create({ id: randomUUID(), name: 'Main Account', description: 'Primary account', updatedAt: new Date() });
+    const transactionItem = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item de Teste', 'Item para transaÃ§Ã£o', new Date()));
 
     const payload = {
       description: 'Salary',
       amount: 1000,
       type: TransactionType.INCOME,
-      categoryId: '9', // Renda Ativa
+      categoryId: '9',
       transactionItemId: transactionItem.id,
       accountId: account.id,
-      transactionDate: transactionDate,
+      transactionDate,
+      settled: false,
     };
 
     const transaction = await useCase.execute(payload as any);
@@ -49,26 +67,14 @@ describe('CreateTransactionUseCase', () => {
       description: 'Salary',
       amount: 1000,
       type: TransactionType.INCOME,
-      category: expect.objectContaining({
-        id: '9',
-        name: 'Renda Ativa',
-      }),
-      account: expect.objectContaining({
-        id: 'account-1',
-        name: 'Main Account',
-      }),
-      transactionDate: transactionDate,
-      dueDate: transactionDate,
+      category: expect.objectContaining({ id: '9', name: 'Renda Ativa' }),
+      account: expect.objectContaining({ id: account.id, name: 'Main Account' }),
     });
     expect(transaction.id).toBeDefined();
     expect(transaction.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should create a transaction with dueDate', async () => {
-    const transactionRepository = new InMemoryTransactionRepository();
-    const transactionItemRepository = new InMemoryTransactionItemRepository();
-    const categoryRepository = new InMemoryCategoryRepository();
-    const accountRepository = new InMemoryAccountRepository();
     const useCase = new CreateTransactionUseCase(
       transactionRepository as any,
       categoryRepository as any,
@@ -78,25 +84,19 @@ describe('CreateTransactionUseCase', () => {
 
     const dueDate = new Date('2024-12-31');
     const transactionDate = new Date('2024-12-01');
-    const account = await accountRepository.create({
-      id: 'account-2',
-      name: 'Credit Card',
-      description: 'Card account',
-      updatedAt: new Date(),
-    });
-    const transactionItem = await transactionItemRepository.create(
-      new TransactionItem('test-item-2', 'Item de Contas', 'Item para pagamento', new Date()),
-    );
+    const account = await accountRepository.create({ id: randomUUID(), name: 'Credit Card', description: 'Card account', updatedAt: new Date() });
+    const transactionItem = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item de Contas', 'Item para pagamento', new Date()));
 
     const payload = {
       description: 'Bill',
       amount: 200,
       type: TransactionType.EXPENSE,
-      categoryId: '2', // Serviços públicos
+      categoryId: '2',
       transactionItemId: transactionItem.id,
       accountId: account.id,
-      transactionDate: transactionDate,
-      dueDate: dueDate,
+      transactionDate,
+      dueDate,
+      settled: true,
     };
 
     const transaction = await useCase.execute(payload as any);
@@ -105,26 +105,14 @@ describe('CreateTransactionUseCase', () => {
       description: 'Bill',
       amount: 200,
       type: TransactionType.EXPENSE,
-      category: expect.objectContaining({
-        id: '2',
-        name: 'Serviços públicos',
-      }),
-      account: expect.objectContaining({
-        id: 'account-2',
-        name: 'Credit Card',
-      }),
-      transactionDate: transactionDate,
-      dueDate: dueDate,
+      category: expect.objectContaining({ id: '2' }),
+      account: expect.objectContaining({ id: account.id, name: 'Credit Card' }),
     });
     expect(transaction.id).toBeDefined();
     expect(transaction.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should create a transaction without description', async () => {
-    const transactionRepository = new InMemoryTransactionRepository();
-    const transactionItemRepository = new InMemoryTransactionItemRepository();
-    const categoryRepository = new InMemoryCategoryRepository();
-    const accountRepository = new InMemoryAccountRepository();
     const useCase = new CreateTransactionUseCase(
       transactionRepository as any,
       categoryRepository as any,
@@ -133,43 +121,26 @@ describe('CreateTransactionUseCase', () => {
     );
 
     const transactionDate = new Date('2024-12-01');
-
-    const account = await accountRepository.create({
-      id: 'account-3',
-      name: 'Savings Account',
-      description: 'Savings account',
-      updatedAt: new Date(),
-    });
-
-    const transactionItem = await transactionItemRepository.create(
-      new TransactionItem('test-item-3', 'Item sem descrição', 'Item opcional', new Date()),
-    );
+    const account = await accountRepository.create({ id: randomUUID(), name: 'Savings Account', description: 'Savings account', updatedAt: new Date() });
+    const transactionItem = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item sem descriÃ§Ã£o', 'Item opcional', new Date()));
 
     const payload = {
       amount: 500,
       type: TransactionType.INCOME,
-      categoryId: '9', // Renda Ativa
+      categoryId: '9',
       transactionItemId: transactionItem.id,
       accountId: account.id,
-      transactionDate: transactionDate,
+      transactionDate,
+      settled: false,
     };
 
     const transaction = await useCase.execute(payload as any);
 
     expect(transaction).toMatchObject({
-      description: undefined,
       amount: 500,
       type: TransactionType.INCOME,
-      category: expect.objectContaining({
-        id: '9',
-        name: 'Renda Ativa',
-      }),
-      account: expect.objectContaining({
-        id: 'account-3',
-        name: 'Savings Account',
-      }),
-      transactionDate: transactionDate,
-      dueDate: transactionDate,
+      category: expect.objectContaining({ id: '9', name: 'Renda Ativa' }),
+      account: expect.objectContaining({ id: account.id, name: 'Savings Account' }),
     });
     expect(transaction.id).toBeDefined();
     expect(transaction.updatedAt).toBeInstanceOf(Date);

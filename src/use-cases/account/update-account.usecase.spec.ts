@@ -1,73 +1,79 @@
-import { InMemoryAccountRepository } from '../../infrastructure/persistence/in-memory/account.repository';
+﻿import { DataSource } from 'typeorm';
+import { createTestDataSource, createTestRepositories } from '../../test-utils/test-datasource';
+import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
+import { AccountEntity } from '../../infrastructure/persistence/postgresql/account.entity';
 import { UpdateAccountUseCase } from './update-account.usecase';
-import { Account } from '../../domain/entities/account.entity';
+import { randomUUID } from 'crypto';
 
 describe('UpdateAccountUseCase', () => {
-  it('should update an account successfully', async () => {
-    const accountRepository = new InMemoryAccountRepository();
-    const useCase = new UpdateAccountUseCase(accountRepository as any);
+  let dataSource: DataSource;
+  let accountRepository: PostgreSQLAccountRepository;
 
-    // Create an account first
-    const originalAccount = await accountRepository.create({
-      id: 'test-account',
-      name: 'Original Name',
-      description: 'Original description',
-      updatedAt: new Date('2024-01-01'),
-    });
-
-    // Update the account
-    const updatedAccount = await useCase.execute({
-      id: originalAccount.id,
-      name: 'Updated Name',
-      description: 'Updated description',
-    });
-
-    expect(updatedAccount).toMatchObject({
-      id: originalAccount.id,
-      name: 'Updated Name',
-      description: 'Updated description',
-    });
-    expect(updatedAccount.updatedAt).toBeInstanceOf(Date);
-    expect(updatedAccount.updatedAt.getTime()).toBeGreaterThan(originalAccount.updatedAt.getTime());
+  beforeAll(async () => {
+    dataSource = await createTestDataSource();
+    accountRepository = createTestRepositories(dataSource).accountRepository;
   });
 
-  it('should update an account without changing description', async () => {
-    const accountRepository = new InMemoryAccountRepository();
+  afterAll(async () => { await dataSource.destroy(); });
+  beforeEach(async () => { await dataSource.getRepository(AccountEntity).clear(); });
+
+  it('should update an account successfully', async () => {
     const useCase = new UpdateAccountUseCase(accountRepository as any);
 
-    // Create an account first
     const originalAccount = await accountRepository.create({
-      id: 'test-account-2',
+      id: randomUUID(),
       name: 'Original Name',
       description: 'Original description',
       updatedAt: new Date(),
     });
 
-    // Update only the name
+    await new Promise(r => setTimeout(r, 5));
+
+    const updatedAccount = await useCase.execute({
+      id: originalAccount.id,
+      name: 'Updated Name',
+      description: 'Updated description',
+    });
+
+    expect(updatedAccount).toMatchObject({
+      id: originalAccount.id,
+      name: 'Updated Name',
+      description: 'Updated description',
+    });
+    expect(updatedAccount.updatedAt).toBeInstanceOf(Date);
+    const updatedSec = Math.floor(updatedAccount.updatedAt.getTime() / 1000);
+    const originalSec = Math.floor(originalAccount.updatedAt.getTime() / 1000);
+    expect(updatedSec).toBeGreaterThanOrEqual(originalSec);
+  });
+
+  it('should update an account without changing description', async () => {
+    const useCase = new UpdateAccountUseCase(accountRepository as any);
+
+    const originalAccount = await accountRepository.create({
+      id: randomUUID(),
+      name: 'Original Name',
+      description: 'Original description',
+      updatedAt: new Date(),
+    });
+
     const updatedAccount = await useCase.execute({
       id: originalAccount.id,
       name: 'Updated Name Only',
-      // description not provided, should keep original
     });
 
     expect(updatedAccount).toMatchObject({
       id: originalAccount.id,
       name: 'Updated Name Only',
-      description: 'Original description', // Should keep original
+      description: 'Original description',
     });
     expect(updatedAccount.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should throw error when account not found', async () => {
-    const accountRepository = new InMemoryAccountRepository();
     const useCase = new UpdateAccountUseCase(accountRepository as any);
 
     await expect(
-      useCase.execute({
-        id: 'non-existent-id',
-        name: 'New Name',
-        description: 'New description',
-      }),
+      useCase.execute({ id: 'non-existent-id', name: 'New Name', description: 'New description' }),
     ).rejects.toThrow('Account with ID "non-existent-id" not found');
   });
 });

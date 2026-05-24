@@ -8,7 +8,7 @@ import { TestAuthModule } from '../modules/auth/test-auth.module';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Reflector } from '@nestjs/core';
-import { InMemoryUserRepository } from '../infrastructure/persistence/in-memory/user.repository';
+import { UserRepository } from '../domain/repositories/user.repository';
 import { User, UserRole } from '../domain/entities/user.entity';
 
 describe('Auth integration', () => {
@@ -37,7 +37,7 @@ describe('Auth integration', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
     await app.init();
 
-    const userRepo = moduleRef.get(InMemoryUserRepository);
+    const userRepo = moduleRef.get<UserRepository>('UserRepository');
     const passwordHash = await bcrypt.hash('admin-password', 12);
     await userRepo.create(new User(randomUUID(), 'admin@test.com', passwordHash, 'Admin', UserRole.ADMIN, new Date()));
 

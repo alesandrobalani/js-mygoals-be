@@ -1,0 +1,2 @@
+Quero remover a estrutura de memória utilizada para testes.
+Para rodar local e testes quero que seja utilizado um banco de dados em memória que utilizem as mesmas classes para acesso de dados que o postgresql.

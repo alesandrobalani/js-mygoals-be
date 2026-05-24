@@ -70,6 +70,62 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     }
   }
 
+  async update(transaction: Transaction): Promise<Transaction> {
+    this.logger.debug(`Updating transaction in database: ${transaction.id}`, 'PostgreSQLTransactionRepository');
+
+    try {
+      const entity = await this.transactionRepository.findOne({ where: { id: transaction.id } });
+      if (!entity) {
+        throw new Error(`Transaction ${transaction.id} not found`);
+      }
+
+      entity.description = transaction.description ?? null;
+      entity.amount = transaction.amount;
+      entity.type = transaction.type;
+      entity.categoryId = transaction.category.id;
+      entity.transactionItemId = transaction.transactionItem.id;
+      entity.accountId = transaction.account.id;
+      entity.transactionDate = transaction.transactionDate;
+      entity.dueDate = transaction.dueDate;
+      entity.settled = Boolean(transaction.settled);
+
+      const savedEntity = await this.transactionRepository.save(entity);
+      this.logger.debug(`Transaction updated successfully: ${savedEntity.id}`, 'PostgreSQLTransactionRepository');
+
+      const loadedEntity = await this.transactionRepository.findOne({
+        where: { id: savedEntity.id },
+        relations: ['category', 'account', 'transactionItem'],
+      });
+      if (!loadedEntity) {
+        throw new Error(`Failed to load updated transaction ${savedEntity.id}`);
+      }
+
+      return {
+        id: loadedEntity.id,
+        description: loadedEntity.description || undefined,
+        amount: loadedEntity.amount,
+        type: loadedEntity.type,
+        category: loadedEntity.category,
+        transactionItem: new TransactionItem(
+          loadedEntity.transactionItem.id,
+          loadedEntity.transactionItem.name,
+          loadedEntity.transactionItem.description,
+          loadedEntity.transactionItem.updatedAt,
+        ),
+        transactionDate: loadedEntity.transactionDate,
+        account: loadedEntity.account,
+        updatedAt: loadedEntity.updatedAt,
+        dueDate: loadedEntity.dueDate || loadedEntity.transactionDate,
+        settled: loadedEntity.settled,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to update transaction ${transaction.id}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
+      throw error;
+    }
+  }
+
   async findAll(): Promise<Transaction[]> {
     this.logger.debug('Retrieving all transactions from database', 'PostgreSQLTransactionRepository');
 

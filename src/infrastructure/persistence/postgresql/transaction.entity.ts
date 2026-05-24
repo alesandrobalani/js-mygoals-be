@@ -16,7 +16,7 @@ export class TransactionEntity {
   amount!: number;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: TransactionType,
   })
   type!: TransactionType;

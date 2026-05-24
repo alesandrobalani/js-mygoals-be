@@ -24,52 +24,58 @@ import { CreateRefreshTokenTable1704153600007 } from './database/migrations/1704
 import { AddRoleToUsers1704153600008 } from './database/migrations/1704153600008-AddRoleToUsers';
 import { SeedAdminUser1704153600009 } from './database/migrations/1704153600009-SeedAdminUser';
 import { AddTransactionDateIndex1704153600010 } from './database/migrations/1704153600010-AddTransactionDateIndex';
-import { AddSettledTransactionColumn1704153600011 } from './database/migrations/1704153600011-AddSettledTransactionColumn';  
+import { AddSettledTransactionColumn1704153600011 } from './database/migrations/1704153600011-AddSettledTransactionColumn';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 
+const ALL_ENTITIES = [
+  TransactionEntity,
+  TransactionItemEntity,
+  CategoryEntity,
+  AccountEntity,
+  UserEntity,
+  RefreshTokenEntity,
+];
+
 const usePostgres = process.env.DB_MODE === 'postgres';
 
 @Module({
   imports: [
-    ...(usePostgres
-      ? [
-          TypeOrmModule.forRoot({
-            type: 'postgres',
-            host: process.env.DB_HOST || 'localhost',
-            port: parseInt(process.env.DB_PORT || '5432'),
-            username: process.env.DB_USERNAME || 'postgres',
-            password: process.env.DB_PASSWORD || 'password',
-            database: process.env.DB_DATABASE || 'js_mygoals_be',
-            entities: [
-              TransactionEntity,
-              TransactionItemEntity,
-              CategoryEntity,
-              AccountEntity,
-              UserEntity,
-              RefreshTokenEntity,
-            ],
-            migrations: [
-              CreateCategoryTable1704153600000,
-              CreateAccountTable1704153600001,
-              CreateTransactionItemTable1704153600002,
-              CreateTransactionTable1704153600003,
-              SeedDefaultCategories1704153600004,
-              AddTransactionDefaultPartition1704153600005,
-              CreateUserTable1704153600006,
-              CreateRefreshTokenTable1704153600007,
-              AddRoleToUsers1704153600008,
-              SeedAdminUser1704153600009,
-              AddTransactionDateIndex1704153600010,
-              AddSettledTransactionColumn1704153600011,
-            ],
-            migrationsRun: false,
-            synchronize: false,
-          }),
-        ]
-      : []),
+    usePostgres
+      ? TypeOrmModule.forRoot({
+          type: 'postgres',
+          host: process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || '5432'),
+          username: process.env.DB_USERNAME || 'postgres',
+          password: process.env.DB_PASSWORD || 'password',
+          database: process.env.DB_DATABASE || 'js_mygoals_be',
+          entities: ALL_ENTITIES,
+          migrations: [
+            CreateCategoryTable1704153600000,
+            CreateAccountTable1704153600001,
+            CreateTransactionItemTable1704153600002,
+            CreateTransactionTable1704153600003,
+            SeedDefaultCategories1704153600004,
+            AddTransactionDefaultPartition1704153600005,
+            CreateUserTable1704153600006,
+            CreateRefreshTokenTable1704153600007,
+            AddRoleToUsers1704153600008,
+            SeedAdminUser1704153600009,
+            AddTransactionDateIndex1704153600010,
+            AddSettledTransactionColumn1704153600011,
+          ],
+          migrationsRun: false,
+          synchronize: false,
+        })
+      : TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          entities: ALL_ENTITIES,
+          synchronize: true,
+          logging: false,
+        }),
     DatabaseModule,
     AuthModule,
     TransactionsModule,
@@ -96,7 +102,7 @@ export class AppModule implements NestModule {
     if (process.env.DB_MODE === 'postgres') {
       await this.databaseService.runMigrations();
     } else {
-      await this.databaseService.seedInMemoryAdmin();
+      await this.databaseService.seedDefaultData();
     }
   }
 

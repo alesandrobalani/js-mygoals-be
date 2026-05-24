@@ -1,17 +1,21 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { TestTransactionsModule } from '../modules/transactions/test-transactions.module';
-import { InMemoryAccountRepository } from '../infrastructure/persistence/in-memory/account.repository';
-import { InMemoryTransactionItemRepository } from '../infrastructure/persistence/in-memory/transaction-item.repository';
-import { InMemoryTransactionRepository } from '../infrastructure/persistence/in-memory/transaction.repository';
+import { AccountRepository } from '../domain/repositories/account.repository';
+import { TransactionItemRepository } from '../domain/repositories/transaction-item.repository';
 import { TransactionItem } from '../domain/entities/transaction-item.entity';
+import { TransactionEntity } from '../infrastructure/persistence/postgresql/transaction.entity';
+import { AccountEntity } from '../infrastructure/persistence/postgresql/account.entity';
+import { TransactionItemEntity } from '../infrastructure/persistence/postgresql/transaction-item.entity';
+import { seedTestCategories } from '../test-utils/test-datasource';
 
 describe('Transactions integration', () => {
   let app: INestApplication;
-  let accountRepository: InMemoryAccountRepository;
-  let transactionItemRepository: InMemoryTransactionItemRepository;
-  let transactionRepository: InMemoryTransactionRepository;
+  let dataSource: DataSource;
+  let accountRepository: AccountRepository;
+  let transactionItemRepository: TransactionItemRepository;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -20,22 +24,22 @@ describe('Transactions integration', () => {
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, transformOptions: { enableImplicitConversion: true } }));
-    accountRepository = moduleRef.get(InMemoryAccountRepository);
-    transactionItemRepository = moduleRef.get(InMemoryTransactionItemRepository);
-    transactionRepository = moduleRef.get(InMemoryTransactionRepository);
+    dataSource = moduleRef.get(DataSource, { strict: false });
+    accountRepository = moduleRef.get<AccountRepository>('AccountRepository');
+    transactionItemRepository = moduleRef.get<TransactionItemRepository>('TransactionItemRepository');
     await app.init();
+    await seedTestCategories(dataSource);
   });
 
-  beforeEach(() => {
-    transactionRepository.clear();
-    accountRepository.clear();
-    transactionItemRepository.clear();
+  beforeEach(async () => {
+    await dataSource.getRepository(TransactionEntity).clear();
+    await dataSource.getRepository(AccountEntity).clear();
+    await dataSource.getRepository(TransactionItemEntity).clear();
   });
 
   afterAll(async () => {
     await app.close();
   });
-
 
   it('should return transaction summary grouped by type for a period', async () => {
     const account = await accountRepository.create({

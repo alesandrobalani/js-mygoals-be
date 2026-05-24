@@ -1,4 +1,9 @@
-import { InMemoryTransactionRepository } from '../../infrastructure/persistence/in-memory/transaction.repository';
+﻿import { DataSource } from 'typeorm';
+import { createTestDataSource, createTestRepositories, seedTestCategories } from '../../test-utils/test-datasource';
+import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
+import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
+import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
+import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from './get-transactions-summary-by-period.usecase';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { Account } from '../../domain/entities/account.entity';
@@ -7,24 +12,34 @@ import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { TransactionType } from '../../dto/create-transaction.dto';
 import { randomUUID } from 'crypto';
 
-const makeTransaction = (
-  type: TransactionType,
-  amount: number,
-  transactionDate: Date,
-  settled:Boolean
-): Transaction => {
-  const account = new Account('acc1', 'Conta', undefined, new Date());
-  const category = new Category('cat1', 'Categoria', undefined, new Date());
-  const item = new TransactionItem('item1', 'Item', undefined, new Date());
-  return new Transaction(
-    randomUUID(), 'desc', amount, type, category, item,
-    transactionDate, account, new Date(), transactionDate, settled
-  );
-};
-
 describe('GetTransactionsSummaryByPeriodUseCase', () => {
+  let dataSource: DataSource;
+  let repo: PostgreSQLTransactionRepository;
+  let sharedAccount: Account;
+  let sharedCategory: Category;
+  let sharedItem: TransactionItem;
+
+  beforeAll(async () => {
+    dataSource = await createTestDataSource();
+    const repos = createTestRepositories(dataSource);
+    repo = repos.transactionRepository;
+    await seedTestCategories(dataSource);
+
+    sharedAccount = await repos.accountRepository.create(new Account(randomUUID(), 'Conta Resumo', undefined, new Date()));
+    sharedCategory = new Category('1', 'HabitaÃ§Ã£o', 'Despesas relacionadas Ã  moradia', new Date());
+    sharedItem = await repos.transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item Resumo', undefined, new Date()));
+  });
+
+  afterAll(async () => { await dataSource.destroy(); });
+  beforeEach(async () => { await dataSource.getRepository(TransactionEntity).clear(); });
+
+  const makeTransaction = (type: TransactionType, amount: number, transactionDate: Date, settled: Boolean): Transaction =>
+    new Transaction(
+      randomUUID(), 'desc', amount, type,
+      sharedCategory, sharedItem, transactionDate, sharedAccount, new Date(), transactionDate, settled,
+    );
+
   it('should return zeros when no transactions exist in period', async () => {
-    const repo = new InMemoryTransactionRepository();
     const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'));
@@ -33,7 +48,6 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum only income transactions in period', async () => {
-    const repo = new InMemoryTransactionRepository();
     const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
 
     await repo.create(makeTransaction(TransactionType.INCOME, 1000, new Date('2024-06-15'), true));
@@ -48,11 +62,10 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum only expense transactions in period', async () => {
-    const repo = new InMemoryTransactionRepository();
     const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
 
-    await repo.create(makeTransaction(TransactionType.EXPENSE, 200, new Date('2024-03-10'),true));
-    await repo.create(makeTransaction(TransactionType.EXPENSE, 300, new Date('2024-07-05'),false));
+    await repo.create(makeTransaction(TransactionType.EXPENSE, 200, new Date('2024-03-10'), true));
+    await repo.create(makeTransaction(TransactionType.EXPENSE, 300, new Date('2024-07-05'), false));
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'));
 
@@ -63,7 +76,6 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum both income and expense transactions correctly', async () => {
-    const repo = new InMemoryTransactionRepository();
     const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
 
     await repo.create(makeTransaction(TransactionType.INCOME, 3000, new Date('2024-01-15'), true));
@@ -80,12 +92,11 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should not count transactions outside the period', async () => {
-    const repo = new InMemoryTransactionRepository();
     const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
 
-    await repo.create(makeTransaction(TransactionType.INCOME, 9999, new Date('2023-12-31'), false));
+    await repo.create(makeTransaction(TransactionType.INCOME, 9999, new Date('2023-06-15'), false));
     await repo.create(makeTransaction(TransactionType.INCOME, 1000, new Date('2024-06-15'), false));
-    await repo.create(makeTransaction(TransactionType.EXPENSE, 9999, new Date('2025-01-01'), true));
+    await repo.create(makeTransaction(TransactionType.EXPENSE, 9999, new Date('2025-06-15'), true));
     await repo.create(makeTransaction(TransactionType.EXPENSE, 400, new Date('2024-03-20'), true));
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'));
