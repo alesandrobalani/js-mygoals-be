@@ -16,10 +16,10 @@ export class RefreshTokenEntity {
   @Column('uuid')
   userId!: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   expiresAt!: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   revokedAt?: Date | null;
 
   @UpdateDateColumn()

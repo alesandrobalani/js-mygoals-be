@@ -23,14 +23,35 @@ const ALL_ENTITIES = [
   UserEntity,
 ];
 
+function patchSqliteDriverForTimestamp(dataSource: DataSource): void {
+  const driver = (dataSource as any).driver;
+  driver.supportedDataTypes.push('timestamp');
+  const origNormalizeType = driver.normalizeType.bind(driver);
+  driver.normalizeType = (col: any) =>
+    col.type === 'timestamp' ? 'datetime' : origNormalizeType(col);
+  const origHydrate = driver.prepareHydratedValue.bind(driver);
+  driver.prepareHydratedValue = (value: any, col: any) =>
+    col.type === 'timestamp' ? origHydrate(value, { ...col, type: 'datetime' }) : origHydrate(value, col);
+  const origPersist = driver.preparePersistentValue.bind(driver);
+  driver.preparePersistentValue = (value: any, col: any) =>
+    col.type === 'timestamp' ? origPersist(value, { ...col, type: 'datetime' }) : origPersist(value, col);
+}
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'better-sqlite3',
-      database: ':memory:',
-      entities: ALL_ENTITIES,
-      synchronize: true,
-      logging: false,
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'better-sqlite3' as const,
+        database: ':memory:',
+        entities: ALL_ENTITIES,
+        synchronize: true,
+        logging: false,
+      }),
+      dataSourceFactory: async (options) => {
+        const dataSource = new DataSource(options!);
+        patchSqliteDriverForTimestamp(dataSource);
+        return dataSource.initialize();
+      },
     }),
     TypeOrmModule.forFeature(ALL_ENTITIES),
   ],

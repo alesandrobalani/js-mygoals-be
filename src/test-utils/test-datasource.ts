@@ -44,6 +44,17 @@ export async function createTestDataSource(): Promise<DataSource> {
     synchronize: true,
     logging: false,
   });
+  const driver = (dataSource as any).driver;
+  driver.supportedDataTypes.push('timestamp');
+  const origNorm = driver.normalizeType.bind(driver);
+  driver.normalizeType = (col: any) =>
+    col.type === 'timestamp' ? 'datetime' : origNorm(col);
+  const origHydrate = driver.prepareHydratedValue.bind(driver);
+  driver.prepareHydratedValue = (value: any, col: any) =>
+    col.type === 'timestamp' ? origHydrate(value, { ...col, type: 'datetime' }) : origHydrate(value, col);
+  const origPersist = driver.preparePersistentValue.bind(driver);
+  driver.preparePersistentValue = (value: any, col: any) =>
+    col.type === 'timestamp' ? origPersist(value, { ...col, type: 'datetime' }) : origPersist(value, col);
   await dataSource.initialize();
   return dataSource;
 }
