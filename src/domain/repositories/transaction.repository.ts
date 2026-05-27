@@ -15,6 +15,14 @@ export interface PaginatedTransactions {
   totalPages: number;
 }
 
+export interface TransactionByAccountAndTypeAndSettledSummary {
+    accountName: string
+    incomeSettled: number;
+    incomeNotSettled: number;
+    expenseSettled: number;
+    expenseNotSettled: number;
+}
+
 export interface TransactionRepository {
   create(transaction: Transaction): Promise<Transaction>;
   update(transaction: Transaction): Promise<Transaction>;
@@ -22,5 +30,6 @@ export interface TransactionRepository {
   existsByAccountId(accountId: string): Promise<boolean>;
   existsByTransactionItemId(transactionItemId: string): Promise<boolean>;
   findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary>;
+  findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]>;
   findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions>;
 }
