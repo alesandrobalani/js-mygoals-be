@@ -9,6 +9,7 @@ import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from '../.
 import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/find-transactions-by-period.usecase';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserRole } from '../../domain/entities/user.entity';
+import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
 
 @Roles(UserRole.USER)
 @Controller('transactions')
@@ -20,6 +21,7 @@ export class TransactionsController {
     private readonly updateTransaction: UpdateTransactionUseCase,
     private readonly getTransactionsSummaryByPeriod: GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
     private readonly findTransactionsByPeriod: FindTransactionsByPeriodUseCase,
+    private readonly getTransactionsSummaryByAccount: GetTransactionsSummaryByAccountByTransactionTypeUseCase,
   ) {}
 
   @Post()
@@ -89,5 +91,21 @@ export class TransactionsController {
       throw error;
     }
   }
+
+  @Get('summaryByAccount')
+  async getSummaryByAccount(@Query() { endDate }: { endDate: Date }) {
+    this.logger.log(`GET /transactions/summaryByAccount - endDate=${endDate}`, 'TransactionsController');
+
+    try {
+      const result = await this.getTransactionsSummaryByAccount.execute(endDate);
+      this.logger.log(`Summary by account retrieved: ${JSON.stringify(result)}`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to retrieve summary by account: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }      
 
 }
