@@ -8,6 +8,7 @@ import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/fin
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { CategoriesModule } from '../categories/categories.module';
 import { DatabaseModule } from '../database/database.module';
+import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -23,6 +24,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     UpdateTransactionUseCase,
     GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
     FindTransactionsByPeriodUseCase,
+    GetTransactionsSummaryByAccountByTransactionTypeUseCase,
   ],
 })
 export class TransactionsModule {}
