@@ -131,4 +131,57 @@ describe('Transactions integration', () => {
     expect(page2.body.data).toHaveLength(2);
     expect(page2.body.page).toBe(2);
   });
+
+    it('should return transaction summary grouped by account and type for a period', async () => {
+    const account1 = await accountRepository.create({
+      id: 'summary-account-1',
+      name: 'Summary Account',
+      description: 'Account for summary tests',
+      updatedAt: new Date(),
+    });
+
+    const account2 = await accountRepository.create({
+      id: 'summary-account-2',
+      name: 'Summary Account 2',
+      description: 'Account for summary tests 2',
+      updatedAt: new Date(),
+    });
+
+    const transactionItem = await transactionItemRepository.create(
+      new TransactionItem('summary-item-1', 'Summary Item', 'Item para testes de resumo', new Date()),
+    );
+
+    const basePayload = {
+      categoryId: '9',
+      transactionItemId: transactionItem.id,
+    };
+
+    await request(app.getHttpServer()).post('/transactions')
+      .send({ ...basePayload, description: 'Salário', amount: 3000, type: 'income', transactionDate: '2024-03-10', settled: false, accountId: account1.id })
+      .expect(201);
+
+    await request(app.getHttpServer()).post('/transactions')
+      .send({ ...basePayload, description: 'Freelance', amount: 1000, type: 'income', transactionDate: '2024-07-20', settled: true, accountId: account1.id })
+      .expect(201);
+
+    await request(app.getHttpServer()).post('/transactions')
+      .send({ ...basePayload, description: 'Aluguel', amount: 1200, type: 'expense', transactionDate: '2024-04-05', settled: true, accountId: account2.id })
+      .expect(201);
+
+    await request(app.getHttpServer()).post('/transactions')
+      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'income', transactionDate: '2023-12-01', settled: true, accountId: account2.id })
+      .expect(201);
+
+    const summaryResponse = await request(app.getHttpServer())
+      .get('/transactions/summaryByAccount')
+      .query({endDate: '2024-10-31' })
+      .expect(200);
+
+    expect(summaryResponse.body).toHaveLength(2);
+    const account1Summary = summaryResponse.body.find((s: any) => s.accountName === 'Summary Account');
+    const account2Summary = summaryResponse.body.find((s: any) => s.accountName === 'Summary Account 2'); 
+    expect(account1Summary).toMatchObject({ incomeSettled: 1000, incomeNotSettled: 3000, expenseSettled: 0, expenseNotSettled: 0 });
+    expect(account2Summary).toMatchObject({ incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 1200, expenseNotSettled: 0 });
+  });
+
 });
