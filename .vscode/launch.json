@@ -83,6 +83,27 @@
       "env": {
         "JWT_SECRET": "test-secret"
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Testes de Integração (arquivo atual)",
+      "runtimeExecutable": "node",
+      "args": [
+        "${workspaceFolder}/node_modules/jest/bin/jest.js",
+        "--config", "jest.integration.config.js",
+        "--runInBand",
+        "--no-coverage",
+        "--testPathPattern",
+        "${relativeFile}"
+      ],
+      "cwd": "${workspaceFolder}",
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "env": {
+        "JWT_SECRET": "test-secret"
+      }
     }
   ]
 }

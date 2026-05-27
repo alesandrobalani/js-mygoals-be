@@ -11,7 +11,7 @@ export class GetTransactionsSummaryByAccountByTransactionTypeUseCase {
   ) {}
 
   async execute(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]> {
-    this.logger.log(`Retrieving transaction summary for account up to ${endDate}`, 'GetTransactionsSummaryByAccountByTransactionTypeUseCase');
+    this.logger.log(`Retrieving transaction summary for account until ${endDate}`, 'GetTransactionsSummaryByAccountByTransactionTypeUseCase');
 
     try {
       const summary = await this.transactionRepository.findSumGroupByAccountAndTypeAndSettled(endDate);

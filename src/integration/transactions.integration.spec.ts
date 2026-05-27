@@ -132,7 +132,7 @@ describe('Transactions integration', () => {
     expect(page2.body.page).toBe(2);
   });
 
-    it('should return transaction summary grouped by account and type for a period', async () => {
+  it('should return transaction summary grouped by account and type for a period', async () => {
     const account1 = await accountRepository.create({
       id: 'summary-account-1',
       name: 'Summary Account',
@@ -169,7 +169,7 @@ describe('Transactions integration', () => {
       .expect(201);
 
     await request(app.getHttpServer()).post('/transactions')
-      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'income', transactionDate: '2023-12-01', settled: true, accountId: account2.id })
+      .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'income', transactionDate: '2025-12-01', settled: true, accountId: account2.id })
       .expect(201);
 
     const summaryResponse = await request(app.getHttpServer())

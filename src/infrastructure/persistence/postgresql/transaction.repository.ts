@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
-import { TransactionRepository, TransactionByTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeAndSettledSummary, TransactionByAccountAndTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -242,6 +242,36 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     }));
 
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+  }
+
+  async findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]> {
+    this.logger.debug(`Retrieving transaction summary by account to ${endDate}`, 'PostgreSQLTransactionRepository');
+
+    const rows = await this.transactionRepository
+      .createQueryBuilder('t')
+      .innerJoin('t.account', 'a')
+      .select('a.name', 'accountName')
+      .addSelect('t.type', 'type')
+      .addSelect('t.settled', 'settled')
+      .addSelect('SUM(t.amount)', 'total')
+      .where('t.transactionDate <= :endDate', { endDate })
+      .groupBy('a.name')
+      .addGroupBy('t.type')
+      .addGroupBy('t.settled')
+      .getRawMany<{ accountName: string; type: string; settled: boolean; total: string }>();
+
+    const map = new Map<string, TransactionByAccountAndTypeAndSettledSummary>();
+    for (const row of rows) {
+      if (!map.has(row.accountName)) {
+        map.set(row.accountName, { accountName: row.accountName, incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 0, expenseNotSettled: 0 });
+      }
+      const entry = map.get(row.accountName)!;
+      if (row.type === 'income' && row.settled) entry.incomeSettled = Number(row.total);
+      if (row.type === 'income' && !row.settled) entry.incomeNotSettled = Number(row.total);
+      if (row.type === 'expense' && row.settled) entry.expenseSettled = Number(row.total);
+      if (row.type === 'expense' && !row.settled) entry.expenseNotSettled = Number(row.total);
+    }
+    return Array.from(map.values());
   }
 
   async findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary> {

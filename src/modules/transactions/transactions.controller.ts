@@ -94,7 +94,7 @@ export class TransactionsController {
 
   @Get('summaryByAccount')
   async getSummaryByAccount(@Query() { endDate }: { endDate: Date }) {
-    this.logger.log(`GET /transactions/summaryByAccount - endDate=${endDate}`, 'TransactionsController');
+    this.logger.log(`GET /transactions/summaryByAccount until - endDate=${endDate}`, 'TransactionsController');
 
     try {
       const result = await this.getTransactionsSummaryByAccount.execute(endDate);
