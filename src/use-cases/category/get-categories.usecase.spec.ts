@@ -34,7 +34,7 @@ describe('GetCategoriesUseCase', () => {
 
     const initialCount = (await useCase.execute()).length;
 
-    await categoryRepository.create({ id: randomUUID(), name: 'Investimentos', description: 'Renda variÃ¡vel', updatedAt: new Date() });
+    await categoryRepository.create({ id: randomUUID(), name: 'Investimentos', description: 'Renda variÃ¡vel', updatedAt: new Date(), isTransfer: false });
 
     const result = await useCase.execute();
 

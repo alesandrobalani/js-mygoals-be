@@ -133,6 +133,18 @@ curl -X POST http://localhost:3000/categories \
   }'
 ```
 
+### Criar uma categoria de transferência
+```bash
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
+  -d '{
+    "name": "Transferência",
+    "description": "Transferência de valores entre contas",
+    "isTransfer": true
+  }'
+```
+
 ## Contas
 
 ### Listar todas as contas
