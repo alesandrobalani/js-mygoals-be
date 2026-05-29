@@ -215,9 +215,9 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     const skip = (page - 1) * limit;
 
     const [entities, total] = await this.transactionRepository.findAndCount({
-      where: { transactionDate: Between(startDate, endDate) },
+      where: { dueDate: Between(startDate, endDate) },
       relations: ['category', 'account', 'transactionItem'],
-      order: { transactionDate: 'DESC' },
+      order: { dueDate: 'DESC' },
       skip,
       take: limit,
     });
@@ -254,7 +254,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       .addSelect('t.type', 'type')
       .addSelect('t.settled', 'settled')
       .addSelect('SUM(t.amount)', 'total')
-      .where('t.transactionDate <= :endDate', { endDate })
+      .where('t.dueDate <= :endDate', { endDate })
       .groupBy('a.name')
       .addGroupBy('t.type')
       .addGroupBy('t.settled')
@@ -282,7 +282,7 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       .select('t.type', 'type')
       .addSelect('t.settled', 'settled')
       .addSelect('SUM(t.amount)', 'total')
-      .where('t.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('t.dueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('t.type')
       .addGroupBy('t.settled')
       .getRawMany<{ type: string; settled: boolean; total: string }>();
