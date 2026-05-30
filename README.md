@@ -6,7 +6,7 @@ API backend em NestJS com Clean Architecture para gerenciamento de transações 
 
 ## Estrutura
 - `src/domain` - entidades e contratos (repositories)
-- `src/use-cases` - casos de uso da aplicação (accounts, categories, transactions, transaction-items, auth)
+- `src/use-cases` - casos de uso da aplicação (accounts, categories, transactions, transaction-items, auth, file-imports)
 - `src/infrastructure` - implementações de persistência e infra
 - `src/modules` - controllers e modules do Nest
 - `src/auth` - estratégias JWT, guards e decorators de autenticação
@@ -68,6 +68,7 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 
 ### Variáveis de ambiente obrigatórias
 - `JWT_SECRET` — segredo para assinar os JWTs (**obrigatório em produção**)
+- `ANTHROPIC_API_KEY` — chave da API do Claude (**obrigatório para importação de arquivos**)
 
 ## Endpoints
 
@@ -81,6 +82,23 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 ### Auth (qualquer usuário autenticado)
 - `POST /auth/logout` - revoga refresh token (body: refreshToken)
 - `GET /auth/me` - retorna dados do usuário autenticado
+
+### Importação de Arquivos (roles `user` e `admin`)
+- `POST /file-imports` - importa arquivo com transações financeiras (multipart/form-data: `file`, `importIdentifier`, `password`?)
+
+**Tipos de arquivo suportados:** CSV, XLS, XLSX, PDF (máx. 10 MB)
+
+**Fluxo do processo:**
+1. Sistema registra a tentativa com status `pending`
+2. Envia o conteúdo para a API do Claude para análise
+3. Claude identifica as transações e retorna os dados mapeados
+4. Transações extraídas são salvas na tabela `imported_transactions` (vinculadas ao registro de importação)
+5. Status atualizado para `completed` (ou `failed` em caso de erro)
+
+**Campos extraídos pelo Claude** (campos não identificáveis ficam nulos):
+- description, amount, type (income/expense), categoryId, accountId, transactionItemId, transactionDate, dueDate, settled
+
+> As transações importadas ficam em quarentena para revisão antes de serem confirmadas na tabela principal de transações.
 
 ### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)

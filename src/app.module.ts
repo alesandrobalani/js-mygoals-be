@@ -7,12 +7,15 @@ import { AccountsModule } from './modules/accounts/accounts.module';
 import { TransactionItemsModule } from './modules/transaction-items/transaction-items.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { FileImportsModule } from './modules/file-imports/file-imports.module';
 import { TransactionEntity } from './infrastructure/persistence/postgresql/transaction.entity';
 import { TransactionItemEntity } from './infrastructure/persistence/postgresql/transaction-item.entity';
 import { CategoryEntity } from './infrastructure/persistence/postgresql/category.entity';
 import { AccountEntity } from './infrastructure/persistence/postgresql/account.entity';
 import { UserEntity } from './infrastructure/persistence/postgresql/user.entity';
 import { RefreshTokenEntity } from './infrastructure/persistence/postgresql/refresh-token.entity';
+import { FileImportEntity } from './infrastructure/persistence/postgresql/file-import.entity';
+import { ImportedTransactionEntity } from './infrastructure/persistence/postgresql/imported-transaction.entity';
 import { CreateCategoryTable1704153600000 } from './database/migrations/1704153600000-CreateCategoryTable';
 import { CreateAccountTable1704153600001 } from './database/migrations/1704153600001-CreateAccountTable';
 import { CreateTransactionItemTable1704153600002 } from './database/migrations/1704153600002-CreateTransactionItemTable';
@@ -25,11 +28,13 @@ import { AddRoleToUsers1704153600008 } from './database/migrations/1704153600008
 import { SeedAdminUser1704153600009 } from './database/migrations/1704153600009-SeedAdminUser';
 import { AddTransactionDateIndex1704153600010 } from './database/migrations/1704153600010-AddTransactionDateIndex';
 import { AddSettledTransactionColumn1704153600011 } from './database/migrations/1704153600011-AddSettledTransactionColumn';
+import { AddIsTransferToCategory1704153600012 } from './database/migrations/1704153600012-AddIsTransferToCategory';
+import { CreateFileImportsTable1704153600013 } from './database/migrations/1704153600013-CreateFileImportsTable';
+import { CreateImportedTransactionsTable1704153600014 } from './database/migrations/1704153600014-CreateImportedTransactionsTable';
 import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
-import { AddIsTransferToCategory1704153600012 } from './database/migrations/1704153600012-AddIsTransferToCategory';
 
 const ALL_ENTITIES = [
   TransactionEntity,
@@ -38,6 +43,8 @@ const ALL_ENTITIES = [
   AccountEntity,
   UserEntity,
   RefreshTokenEntity,
+  FileImportEntity,
+  ImportedTransactionEntity,
 ];
 
 const usePostgres = process.env.DB_MODE === 'postgres';
@@ -67,6 +74,8 @@ const usePostgres = process.env.DB_MODE === 'postgres';
             AddTransactionDateIndex1704153600010,
             AddSettledTransactionColumn1704153600011,
             AddIsTransferToCategory1704153600012,
+            CreateFileImportsTable1704153600013,
+            CreateImportedTransactionsTable1704153600014,
           ],
           migrationsRun: false,
           synchronize: false,
@@ -84,6 +93,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     TransactionItemsModule,
     CategoriesModule,
     AccountsModule,
+    FileImportsModule,
   ],
   providers: [
     DatabaseService,

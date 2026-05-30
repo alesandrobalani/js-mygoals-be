@@ -5,12 +5,16 @@ import { RefreshTokenEntity } from '../infrastructure/persistence/postgresql/ref
 import { TransactionItemEntity } from '../infrastructure/persistence/postgresql/transaction-item.entity';
 import { TransactionEntity } from '../infrastructure/persistence/postgresql/transaction.entity';
 import { UserEntity } from '../infrastructure/persistence/postgresql/user.entity';
+import { FileImportEntity } from '../infrastructure/persistence/postgresql/file-import.entity';
+import { ImportedTransactionEntity } from '../infrastructure/persistence/postgresql/imported-transaction.entity';
 import { PostgreSQLAccountRepository } from '../infrastructure/persistence/postgresql/account.repository';
 import { PostgreSQLCategoryRepository } from '../infrastructure/persistence/postgresql/category.repository';
 import { PostgreSQLRefreshTokenRepository } from '../infrastructure/persistence/postgresql/refresh-token.repository';
 import { PostgreSQLTransactionItemRepository } from '../infrastructure/persistence/postgresql/transaction-item.repository';
 import { PostgreSQLTransactionRepository } from '../infrastructure/persistence/postgresql/transaction.repository';
 import { PostgreSQLUserRepository } from '../infrastructure/persistence/postgresql/user.repository';
+import { PostgreSQLFileImportRepository } from '../infrastructure/persistence/postgresql/file-import.repository';
+import { PostgreSQLImportedTransactionRepository } from '../infrastructure/persistence/postgresql/imported-transaction.repository';
 import { Category } from '../domain/entities/category.entity';
 
 const ALL_ENTITIES = [
@@ -20,6 +24,8 @@ const ALL_ENTITIES = [
   TransactionItemEntity,
   TransactionEntity,
   UserEntity,
+  FileImportEntity,
+  ImportedTransactionEntity,
 ];
 
 const DEFAULT_CATEGORIES: Category[] = [
@@ -67,6 +73,8 @@ export function createTestRepositories(dataSource: DataSource) {
     transactionItemRepository: new PostgreSQLTransactionItemRepository(dataSource.getRepository(TransactionItemEntity)),
     transactionRepository: new PostgreSQLTransactionRepository(dataSource.getRepository(TransactionEntity)),
     userRepository: new PostgreSQLUserRepository(dataSource.getRepository(UserEntity)),
+    fileImportRepository: new PostgreSQLFileImportRepository(dataSource.getRepository(FileImportEntity)),
+    importedTransactionRepository: new PostgreSQLImportedTransactionRepository(dataSource.getRepository(ImportedTransactionEntity)),
   };
 }
 

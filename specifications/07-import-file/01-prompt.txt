@@ -1,0 +1,14 @@
+Quero adicionar o recurso de importação de arquivos com lançamentos de transações financeiras.
+Para isto quero utilizar as apis do claude para realizar a operação.
+Os arquivos a serem importados não tem o mesmo formato, podem ser planilhas pré-existentes com o controle de transações de um determinando período, como faturas de cartões de créditos.
+Para isto quero criar um controller, que seja autenticado para utilização como os demais.
+Neste controller o cliente enviará o arquivo que ele deseja tentar importar. O cliente deverá passar um identificador único para representar aquela tentativa de importação.
+O sistema deverá armazenar um registro em uma nova tabela sobre o processo de importação de arquivo.
+Ao enviar um novo cadastro com o identificador e o arquivo, o sistema deverá realizar o cadastro deste processo, e deverá enviar as apis do claude para ele poder analisar e gerar registros de transações finaceiras que ele identificou neste processo.
+Estes registros de transações financeiras não devem ser cadastradas diretamente na tabela de transação, e sim deverá ser criada uma nova tabela, que estará ligada ao registro de importação contendo as transações identificadas na leitura do arquivo.
+O arquivo poderá ter senha para abertura, neste caso este controller deverá permitir o envio desta senha de maneira segura para ser possível a abertura e processamento.
+Na tabela de transações identificadas no arquivo, o claude deverá identificar as informações contidas na tabela de transações, e gerar os registros na nova tabela com os valores que a api do claude conseguiu fazer o mapeamento. Caso algum dos campos não seja possível de presumir, o campo deve ficar nulo.
+Adicionar o arquivo de migration para ser executado na iniciação da subida do sistema.
+Criar os testes automatizados para o novo comportamento.
+Ajustar o README da aplicação.
+O arquivo a ser importado não possui os ids de catagoria e item. Para fazer o depara, estes dados devem ser enviados para o contexot do claude, de forma que ele possa tentar inferir a qual destas entidades cada transação se refira.
