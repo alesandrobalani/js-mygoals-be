@@ -4,5 +4,6 @@ export class Category {
     readonly name: string,
     readonly description: string | undefined,
     readonly updatedAt: Date,
+    readonly isTransfer: boolean = false,
   ) {}
 }

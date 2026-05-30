@@ -250,11 +250,13 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     const rows = await this.transactionRepository
       .createQueryBuilder('t')
       .innerJoin('t.account', 'a')
+      .innerJoin('t.category', 'c')
       .select('a.name', 'accountName')
       .addSelect('t.type', 'type')
       .addSelect('t.settled', 'settled')
       .addSelect('SUM(t.amount)', 'total')
       .where('t.dueDate <= :endDate', { endDate })
+      .andWhere('c.isTransfer = false')
       .groupBy('a.name')
       .addGroupBy('t.type')
       .addGroupBy('t.settled')
@@ -279,10 +281,12 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
 
     const rows = await this.transactionRepository
       .createQueryBuilder('t')
+      .innerJoin('t.category', 'c')
       .select('t.type', 'type')
       .addSelect('t.settled', 'settled')
       .addSelect('SUM(t.amount)', 'total')
       .where('t.dueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('c.isTransfer = false')
       .groupBy('t.type')
       .addGroupBy('t.settled')
       .getRawMany<{ type: string; settled: boolean; total: string }>();

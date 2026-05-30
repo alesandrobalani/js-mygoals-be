@@ -22,6 +22,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
     entity.name = category.name;
     entity.description = category.description;
     entity.updatedAt = category.updatedAt || new Date();
+    entity.isTransfer = category.isTransfer ?? false;
 
     const savedEntity = await this.categoryRepository.save(entity);
 
@@ -30,6 +31,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       savedEntity.name,
       savedEntity.description,
       savedEntity.updatedAt,
+      savedEntity.isTransfer,
     );
   }
 
@@ -42,6 +44,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.name,
       entity.description,
       entity.updatedAt,
+      entity.isTransfer,
     ));
   }
 
@@ -56,6 +59,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.name,
       entity.description,
       entity.updatedAt,
+      entity.isTransfer,
     );
   }
 
@@ -70,6 +74,7 @@ export class PostgreSQLCategoryRepository implements CategoryRepository {
       entity.name,
       entity.description,
       entity.updatedAt,
+      entity.isTransfer,
     );
   }
 }

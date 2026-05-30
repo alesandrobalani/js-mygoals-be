@@ -29,6 +29,7 @@ import { DatabaseService } from './database/database.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { AddIsTransferToCategory1704153600012 } from './database/migrations/1704153600012-AddIsTransferToCategory';
 
 const ALL_ENTITIES = [
   TransactionEntity,
@@ -65,6 +66,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
             SeedAdminUser1704153600009,
             AddTransactionDateIndex1704153600010,
             AddSettledTransactionColumn1704153600011,
+            AddIsTransferToCategory1704153600012,
           ],
           migrationsRun: false,
           synchronize: false,

@@ -27,9 +27,33 @@ describe('CreateCategoryUseCase', () => {
     expect(category).toMatchObject({
       name: 'Nova Categoria',
       description: 'DescriÃ§Ã£o de teste',
+      isTransfer: false,
     });
     expect(category.id).toBeDefined();
     expect(category.updatedAt).toBeInstanceOf(Date);
+  });
+
+  it('should create a transfer category when isTransfer is true', async () => {
+    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+
+    const category = await useCase.execute({
+      name: 'Transferência',
+      description: 'Categoria para transferências entre contas',
+      isTransfer: true,
+    });
+
+    expect(category).toMatchObject({
+      name: 'Transferência',
+      isTransfer: true,
+    });
+  });
+
+  it('should default isTransfer to false when not provided', async () => {
+    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+
+    const category = await useCase.execute({ name: 'Sem Transfer Flag' });
+
+    expect(category.isTransfer).toBe(false);
   });
 
   it('should not create a category with a duplicate name', async () => {

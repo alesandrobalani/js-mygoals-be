@@ -6,6 +6,7 @@ import { Category } from '../../domain/entities/category.entity';
 export interface CreateCategoryInput {
   name: string;
   description?: string;
+  isTransfer?: boolean;
 }
 
 @Injectable()
@@ -31,6 +32,7 @@ export class CreateCategoryUseCase {
       input.name,
       input.description,
       new Date(),
+      input.isTransfer ?? false,
     );
 
     const result = await this.categoryRepository.create(category);

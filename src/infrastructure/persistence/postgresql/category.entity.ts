@@ -13,4 +13,7 @@ export class CategoryEntity {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @Column({ type: 'boolean', default: false })
+  isTransfer!: boolean;
 }

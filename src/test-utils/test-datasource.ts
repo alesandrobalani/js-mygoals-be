@@ -23,17 +23,17 @@ const ALL_ENTITIES = [
 ];
 
 const DEFAULT_CATEGORIES: Category[] = [
-  new Category('1', 'Habitação', 'Despesas relacionadas à moradia', new Date()),
-  new Category('2', 'Serviços públicos', 'Água, luz, gás, internet', new Date()),
-  new Category('3', 'Educação', 'Escola, cursos, livros', new Date()),
-  new Category('4', 'Saúde', 'Médicos, remédios, plano de saúde', new Date()),
-  new Category('5', 'Alimentação', 'Compras de supermercado, restaurantes', new Date()),
-  new Category('6', 'Transporte', 'Ônibus, metrô, combustível, manutenção', new Date()),
-  new Category('7', 'Lazer', 'Cinema, shows, hobbies', new Date()),
-  new Category('8', 'Cuidados pessoais', 'Cabeleireiro, cosméticos, academia', new Date()),
-  new Category('9', 'Renda Ativa', 'Salário, trabalho principal', new Date()),
-  new Category('10', 'Renda extra', 'Trabalhos adicionais, freelas', new Date()),
-  new Category('11', 'Renda passiva', 'Investimentos, aluguéis', new Date()),
+  new Category('1', 'Habitação', 'Despesas relacionadas à moradia', new Date(), false),
+  new Category('2', 'Serviços públicos', 'Água, luz, gás, internet', new Date(), false),
+  new Category('3', 'Educação', 'Escola, cursos, livros', new Date(), false),
+  new Category('4', 'Saúde', 'Médicos, remédios, plano de saúde', new Date(), false),
+  new Category('5', 'Alimentação', 'Compras de supermercado, restaurantes', new Date(), false),
+  new Category('6', 'Transporte', 'Ônibus, metrô, combustível, manutenção', new Date(), false),
+  new Category('7', 'Lazer', 'Cinema, shows, hobbies', new Date(), false),
+  new Category('8', 'Cuidados pessoais', 'Cabeleireiro, cosméticos, academia', new Date(), false),
+  new Category('9', 'Renda Ativa', 'Salário, trabalho principal', new Date(), false),
+  new Category('10', 'Renda extra', 'Trabalhos adicionais, freelas', new Date(), false),
+  new Category('11', 'Renda passiva', 'Investimentos, aluguéis', new Date(), false),
 ];
 
 export async function createTestDataSource(): Promise<DataSource> {

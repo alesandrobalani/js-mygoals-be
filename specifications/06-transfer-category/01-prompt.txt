@@ -1,0 +1,11 @@
+Quero adicionar uma informação de um categoria que seja usada para transferência de valores entre contas.
+
+Para isto quero que no cadastro de categoria seja criada um novo campo boolean para indicar que a categoria é de transferência. Por default seu valor deve ser falso.
+
+No controller de categoria, deve ser adicionado este campo como opcional, e quando não enviado a categoria deve ser inserida na tabela com o valor default, quando enviado deve ser utilizado o valor informado.
+
+Deve ser criado o migration.
+
+Deve ser atualizada a documentação e o arquivo com os exemplos de request.
+
+Deve ser ajustados os testes automatizados.
