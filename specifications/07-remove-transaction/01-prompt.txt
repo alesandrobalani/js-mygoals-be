@@ -1,0 +1,4 @@
+Crie neste projeto o controller e a funcionalidade de remoção de uma transação.
+Crie os testes automatizados necessários para validar comportamentos, com happy e bad flows.
+Atualize a documentação da aplicação.
+Atualize o catálogo de requests.
