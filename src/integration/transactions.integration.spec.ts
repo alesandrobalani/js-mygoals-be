@@ -132,6 +132,33 @@ describe('Transactions integration', () => {
     expect(page2.body.page).toBe(2);
   });
 
+  it('DELETE /transactions/:id - deve remover transação existente e retornar 204', async () => {
+    const account = await accountRepository.create({
+      id: 'delete-account-1',
+      name: 'Delete Account',
+      description: 'Account for delete tests',
+      updatedAt: new Date(),
+    });
+
+    const transactionItem = await transactionItemRepository.create(
+      new TransactionItem('delete-item-1', 'Delete Item', undefined, new Date()),
+    );
+
+    const createRes = await request(app.getHttpServer()).post('/transactions')
+      .send({ categoryId: '9', transactionItemId: transactionItem.id, accountId: account.id, description: 'Tx para deletar', amount: 500, type: 'expense', transactionDate: '2024-06-01', settled: false })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .delete(`/transactions/${createRes.body.id}`)
+      .expect(204);
+  });
+
+  it('DELETE /transactions/:id - deve retornar 404 para id inexistente', async () => {
+    await request(app.getHttpServer())
+      .delete('/transactions/00000000-0000-0000-0000-000000000000')
+      .expect(404);
+  });
+
   it('should return transaction summary grouped by account and type for a period', async () => {
     const account1 = await accountRepository.create({
       id: 'summary-account-1',

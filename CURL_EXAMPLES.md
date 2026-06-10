@@ -114,6 +114,13 @@ curl -X POST http://localhost:3000/transactions \
   }'
 ```
 
+### Remover uma transação
+```bash
+curl -X DELETE http://localhost:3000/transactions/<id-da-transacao> \
+  -H "Authorization: Bearer <seu-access-token>"
+```
+Retorna `204 No Content` em caso de sucesso ou `404 Not Found` se a transação não existir.
+
 ## Categorias
 
 ### Listar todas as categorias

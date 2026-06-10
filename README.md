@@ -84,6 +84,7 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 
 ### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
+- DELETE `/transactions/:id` - remove uma transação (204 No Content; 404 se não encontrada)
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias
 - POST `/accounts` - cria conta (body: name, description?)

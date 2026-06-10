@@ -201,6 +201,10 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     }
   }
   
+  async delete(id: string): Promise<void> {
+    await this.transactionRepository.delete(id);
+  }
+
   async existsByAccountId(accountId: string): Promise<boolean> {
     return this.transactionRepository.exists({ where: { accountId } });
   }

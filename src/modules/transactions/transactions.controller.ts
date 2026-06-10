@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { CreateTransactionDto } from '../../dto/create-transaction.dto';
 import { UpdateTransactionDto } from '../../dto/update-transaction.dto';
 import { TransactionSummaryQueryDto as TransactionPeriodDto } from '../../dto/transaction-summary-query.dto';
@@ -10,6 +10,7 @@ import { FindTransactionsByPeriodUseCase } from '../../use-cases/transaction/fin
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserRole } from '../../domain/entities/user.entity';
 import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
+import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
 
 @Roles(UserRole.USER)
 @Controller('transactions')
@@ -22,6 +23,7 @@ export class TransactionsController {
     private readonly getTransactionsSummaryByPeriod: GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase,
     private readonly findTransactionsByPeriod: FindTransactionsByPeriodUseCase,
     private readonly getTransactionsSummaryByAccount: GetTransactionsSummaryByAccountByTransactionTypeUseCase,
+    private readonly deleteTransaction: DeleteTransactionUseCase,
   ) {}
 
   @Post()
@@ -88,6 +90,22 @@ export class TransactionsController {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Failed to search transactions: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    this.logger.log(`DELETE /transactions/${id}`, 'TransactionsController');
+
+    try {
+      await this.deleteTransaction.execute(id);
+      this.logger.log(`Transaction deleted successfully: ${id}`, 'TransactionsController');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to delete transaction: ${errorMessage}`, errorStack, 'TransactionsController');
       throw error;
     }
   }

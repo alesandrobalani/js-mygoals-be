@@ -11,6 +11,7 @@ import { GetAccountsUseCase } from '../../use-cases/account/get-accounts.usecase
 import { UpdateAccountUseCase } from '../../use-cases/account/update-account.usecase';
 import { DeleteAccountUseCase } from '../../use-cases/account/delete-account.usecase';
 import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
+import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
 
 @Module({
   imports: [SqliteDatabaseModule],
@@ -25,6 +26,7 @@ import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../u
     UpdateAccountUseCase,
     DeleteAccountUseCase,
     GetTransactionsSummaryByAccountByTransactionTypeUseCase,
+    DeleteTransactionUseCase,
   ],
 })
 export class TestTransactionsModule {}

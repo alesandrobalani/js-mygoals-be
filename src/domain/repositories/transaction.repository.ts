@@ -32,4 +32,5 @@ export interface TransactionRepository {
   findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary>;
   findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]>;
   findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions>;
+  delete(id: string): Promise<void>;
 }
