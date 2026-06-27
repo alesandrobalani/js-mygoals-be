@@ -114,6 +114,28 @@ curl -X POST http://localhost:3000/transactions \
   }'
 ```
 
+### Criar uma transferência entre contas
+```bash
+curl -X POST http://localhost:3000/transactions/transfer \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <seu-access-token>" \
+  -d '{
+    "debitAccountId": "<id-da-conta-origem>",
+    "creditAccountId": "<id-da-conta-destino>",
+    "categoryId": "<id-de-categoria-com-isTransfer-true>",
+    "transactionItemId": "<id-do-item>",
+    "transactionDate": "2024-06-01",
+    "dueDate": "2024-06-01",
+    "amount": 1000.00,
+    "settled": true
+  }'
+```
+Retorna `201 Created` com `{ "debit": {...}, "credit": {...} }`.
+Regras:
+- Todos os campos são obrigatórios
+- A categoria deve ter `isTransfer: true` (retorna 400 caso contrário)
+- Contas ou categoria inexistentes retornam 400
+
 ### Remover uma transação
 ```bash
 curl -X DELETE http://localhost:3000/transactions/<id-da-transacao> \

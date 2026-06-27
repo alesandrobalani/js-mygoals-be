@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
-import { TransactionRepository, TransactionByTypeAndSettledSummary, TransactionByAccountAndTypeAndSettledSummary, PaginatedTransactions } from '../../../domain/repositories/transaction.repository';
+import { TransactionRepository, TransactionByTypeAndSettledSummary, TransactionByAccountAndTypeAndSettledSummary, PaginatedTransactions, TransferResult } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -66,6 +66,64 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Failed to save transaction ${transaction.id}: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
+      throw error;
+    }
+  }
+
+  async createPair(debit: Transaction, credit: Transaction): Promise<TransferResult> {
+    this.logger.debug(`Creating transfer pair: debit=${debit.id}, credit=${credit.id}`, 'PostgreSQLTransactionRepository');
+
+    const toEntity = (t: Transaction): TransactionEntity => {
+      const e = new TransactionEntity();
+      e.id = t.id;
+      e.description = t.description ?? null;
+      e.amount = t.amount;
+      e.type = t.type;
+      e.categoryId = t.category.id;
+      e.transactionItemId = t.transactionItem.id;
+      e.accountId = t.account.id;
+      e.transactionDate = t.transactionDate;
+      e.dueDate = t.dueDate;
+      e.settled = t.settled;
+      return e;
+    };
+
+    const toDomain = (e: TransactionEntity): Transaction => ({
+      id: e.id,
+      description: e.description || undefined,
+      amount: e.amount,
+      type: e.type,
+      category: e.category,
+      transactionItem: new TransactionItem(e.transactionItem.id, e.transactionItem.name, e.transactionItem.description, e.transactionItem.updatedAt),
+      transactionDate: e.transactionDate,
+      account: e.account,
+      updatedAt: e.updatedAt,
+      dueDate: e.dueDate || e.transactionDate,
+      settled: e.settled,
+    });
+
+    try {
+      const [savedDebitId, savedCreditId] = await this.transactionRepository.manager.transaction(async (manager) => {
+        const savedDebit = await manager.save(TransactionEntity, toEntity(debit));
+        const savedCredit = await manager.save(TransactionEntity, toEntity(credit));
+        return [savedDebit.id, savedCredit.id];
+      });
+
+      const [debitEntity, creditEntity] = await Promise.all([
+        this.transactionRepository.findOne({ where: { id: savedDebitId }, relations: ['category', 'account', 'transactionItem'] }),
+        this.transactionRepository.findOne({ where: { id: savedCreditId }, relations: ['category', 'account', 'transactionItem'] }),
+      ]);
+
+      if (!debitEntity || !creditEntity) {
+        throw new Error('Failed to load saved transfer transactions');
+      }
+
+      this.logger.debug(`Transfer pair created: debit=${savedDebitId}, credit=${savedCreditId}`, 'PostgreSQLTransactionRepository');
+      return { debit: toDomain(debitEntity), credit: toDomain(creditEntity) };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to create transfer pair: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
       throw error;
     }
   }

@@ -1,0 +1,25 @@
+Deve ser adicionado um novo controller no projeto para adicionar uma transacao de transferencia.
+Uma transacao de transferencia deve receber as seguintes informacoes:
+- A conta que sera debitada
+- A conta que sera creditada
+- A data da transacao
+- O valor a ser transferido
+- A categoria da transacao
+- O item da transaacao
+- A data da transacao
+- A data de vencimento
+- E a informacao de efetivacao
+
+Criterios de aceite da request:
+- Todas estas informacoes sao obrigatorias.
+- A categoria deve ser uma categoria marcada como transferencia.
+
+Qualquer falha nos criterios de aceite devem retornar um erro 400.
+
+Os criterios estando corretos, devem ser geradas duas transacoes, uma sendo de credito e outra de debito nas contas informadas.
+
+Qualquer erro inesperado deve retornar um erro 500, e nenhuma das transacoes devem ser criadas.
+
+Devem ser criados os testes automatizados para garantir a qualidade da solucao, com happy e bad flows.
+
+A documentacao do projeto deve ser atualizada.
