@@ -38,6 +38,14 @@ API padrão: `http://localhost:3000`
 - Itens de transação têm nomes únicos
 - Não é possível remover um item de transação se houver transações associadas a ele
 
+## Transferência entre Contas
+- Endpoint: `POST /transactions/transfer`
+- Todos os campos são obrigatórios: `debitAccountId`, `creditAccountId`, `categoryId`, `transactionItemId`, `transactionDate`, `dueDate`, `amount`, `settled`
+- A categoria informada (`categoryId`) deve ter `isTransfer: true`; caso contrário, retorna 400
+- Recursos não encontrados (categoria, contas, item) retornam 400
+- Ao criar uma transferência são geradas duas transações: uma de **despesa** (`expense`) na conta debitada e uma de **receita** (`income`) na conta creditada
+- Transferências são excluídas dos sumários de receita/despesa
+
 ## Autenticação e Autorização
 
 A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de acesso baseado em papéis (RBAC).
@@ -84,6 +92,7 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 
 ### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
+- POST `/transactions/transfer` - cria transferência entre contas, gerando uma transação de débito e uma de crédito (body: debitAccountId, creditAccountId, categoryId, transactionItemId, transactionDate, dueDate, amount, settled)
 - DELETE `/transactions/:id` - remove uma transação (204 No Content; 404 se não encontrada)
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias

@@ -34,6 +34,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   new Category('9', 'Renda Ativa', 'Salário, trabalho principal', new Date(), false),
   new Category('10', 'Renda extra', 'Trabalhos adicionais, freelas', new Date(), false),
   new Category('11', 'Renda passiva', 'Investimentos, aluguéis', new Date(), false),
+  new Category('12', 'Transferência', 'Transferência entre contas', new Date(), true),
 ];
 
 export async function createTestDataSource(): Promise<DataSource> {

@@ -23,8 +23,14 @@ export interface TransactionByAccountAndTypeAndSettledSummary {
     expenseNotSettled: number;
 }
 
+export interface TransferResult {
+  debit: Transaction;
+  credit: Transaction;
+}
+
 export interface TransactionRepository {
   create(transaction: Transaction): Promise<Transaction>;
+  createPair(debit: Transaction, credit: Transaction): Promise<TransferResult>;
   update(transaction: Transaction): Promise<Transaction>;
   findById(id: string): Promise<Transaction | null>;
   existsByAccountId(accountId: string): Promise<boolean>;

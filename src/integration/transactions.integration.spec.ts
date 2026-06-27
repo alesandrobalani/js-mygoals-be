@@ -159,6 +159,176 @@ describe('Transactions integration', () => {
       .expect(404);
   });
 
+  describe('POST /transactions/transfer', () => {
+    it('deve criar duas transações (débito e crédito) e retornar 201', async () => {
+      const debitAccount = await accountRepository.create({
+        id: 'transfer-debit-account-1',
+        name: 'Conta Débito',
+        description: 'Conta para débito',
+        updatedAt: new Date(),
+      });
+
+      const creditAccount = await accountRepository.create({
+        id: 'transfer-credit-account-1',
+        name: 'Conta Crédito',
+        description: 'Conta para crédito',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('transfer-item-1', 'Transfer Item', undefined, new Date()),
+      );
+
+      const payload = {
+        debitAccountId: debitAccount.id,
+        creditAccountId: creditAccount.id,
+        categoryId: '12',
+        transactionItemId: transactionItem.id,
+        transactionDate: '2024-06-01',
+        dueDate: '2024-06-01',
+        amount: 500,
+        settled: true,
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send(payload)
+        .expect(201);
+
+      expect(response.body.debit).toMatchObject({ amount: 500, type: 'expense' });
+      expect(response.body.credit).toMatchObject({ amount: 500, type: 'income' });
+    });
+
+    it('deve retornar 400 para campos obrigatórios ausentes', async () => {
+      await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send({ amount: 100, settled: true })
+        .expect(400);
+    });
+
+    it('deve retornar 400 para categoria que não é de transferência', async () => {
+      const debitAccount = await accountRepository.create({
+        id: 'transfer-bad-cat-debit',
+        name: 'Conta Débito',
+        description: 'Conta para débito',
+        updatedAt: new Date(),
+      });
+
+      const creditAccount = await accountRepository.create({
+        id: 'transfer-bad-cat-credit',
+        name: 'Conta Crédito',
+        description: 'Conta para crédito',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('transfer-bad-cat-item', 'Item', undefined, new Date()),
+      );
+
+      await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send({
+          debitAccountId: debitAccount.id,
+          creditAccountId: creditAccount.id,
+          categoryId: '1',
+          transactionItemId: transactionItem.id,
+          transactionDate: '2024-06-01',
+          dueDate: '2024-06-01',
+          amount: 200,
+          settled: false,
+        })
+        .expect(400);
+    });
+
+    it('deve retornar 400 para categoria inexistente', async () => {
+      const debitAccount = await accountRepository.create({
+        id: 'transfer-no-cat-debit',
+        name: 'Conta Débito',
+        description: 'Conta para débito',
+        updatedAt: new Date(),
+      });
+
+      const creditAccount = await accountRepository.create({
+        id: 'transfer-no-cat-credit',
+        name: 'Conta Crédito',
+        description: 'Conta para crédito',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('transfer-no-cat-item', 'Item', undefined, new Date()),
+      );
+
+      await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send({
+          debitAccountId: debitAccount.id,
+          creditAccountId: creditAccount.id,
+          categoryId: '99999',
+          transactionItemId: transactionItem.id,
+          transactionDate: '2024-06-01',
+          dueDate: '2024-06-01',
+          amount: 200,
+          settled: false,
+        })
+        .expect(400);
+    });
+
+    it('deve retornar 400 para conta de débito inexistente', async () => {
+      const creditAccount = await accountRepository.create({
+        id: 'transfer-no-debit-credit',
+        name: 'Conta Crédito',
+        description: 'Conta para crédito',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('transfer-no-debit-item', 'Item', undefined, new Date()),
+      );
+
+      await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send({
+          debitAccountId: '00000000-0000-0000-0000-000000000000',
+          creditAccountId: creditAccount.id,
+          categoryId: '12',
+          transactionItemId: transactionItem.id,
+          transactionDate: '2024-06-01',
+          dueDate: '2024-06-01',
+          amount: 200,
+          settled: false,
+        })
+        .expect(400);
+    });
+
+    it('deve retornar 400 para conta de crédito inexistente', async () => {
+      const debitAccount = await accountRepository.create({
+        id: 'transfer-no-credit-debit',
+        name: 'Conta Débito',
+        description: 'Conta para débito',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('transfer-no-credit-item', 'Item', undefined, new Date()),
+      );
+
+      await request(app.getHttpServer())
+        .post('/transactions/transfer')
+        .send({
+          debitAccountId: debitAccount.id,
+          creditAccountId: '00000000-0000-0000-0000-000000000000',
+          categoryId: '12',
+          transactionItemId: transactionItem.id,
+          transactionDate: '2024-06-01',
+          dueDate: '2024-06-01',
+          amount: 200,
+          settled: false,
+        })
+        .expect(400);
+    });
+  });
+
   it('should return transaction summary grouped by account and type for a period', async () => {
     const account1 = await accountRepository.create({
       id: 'summary-account-1',

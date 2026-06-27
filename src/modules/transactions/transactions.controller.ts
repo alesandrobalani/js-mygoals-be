@@ -11,6 +11,8 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserRole } from '../../domain/entities/user.entity';
 import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
 import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
+import { CreateTransferTransactionUseCase } from '../../use-cases/transaction/create-transfer-transaction.usecase';
+import { CreateTransferTransactionDto } from '../../dto/create-transfer-transaction.dto';
 
 @Roles(UserRole.USER)
 @Controller('transactions')
@@ -24,7 +26,25 @@ export class TransactionsController {
     private readonly findTransactionsByPeriod: FindTransactionsByPeriodUseCase,
     private readonly getTransactionsSummaryByAccount: GetTransactionsSummaryByAccountByTransactionTypeUseCase,
     private readonly deleteTransaction: DeleteTransactionUseCase,
+    private readonly createTransferTransaction: CreateTransferTransactionUseCase,
   ) {}
+
+  @Post('transfer')
+  @HttpCode(HttpStatus.CREATED)
+  async createTransfer(@Body() payload: CreateTransferTransactionDto) {
+    this.logger.log(`POST /transactions/transfer - amount: ${payload.amount}, debit: ${payload.debitAccountId}, credit: ${payload.creditAccountId}`, 'TransactionsController');
+
+    try {
+      const result = await this.createTransferTransaction.execute(payload);
+      this.logger.log(`Transfer created: debit=${result.debit.id}, credit=${result.credit.id}`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to create transfer: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
