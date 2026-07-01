@@ -11,6 +11,7 @@ import { DatabaseModule } from '../database/database.module';
 import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../use-cases/transaction/get-transactions-summary-by-account.usecase';
 import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
 import { CreateTransferTransactionUseCase } from '../../use-cases/transaction/create-transfer-transaction.usecase';
+import { GetStrategicViewUseCase } from '../../use-cases/transaction/get-strategic-view.usecase';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -29,6 +30,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     GetTransactionsSummaryByAccountByTransactionTypeUseCase,
     DeleteTransactionUseCase,
     CreateTransferTransactionUseCase,
+    GetStrategicViewUseCase,
   ],
 })
 export class TransactionsModule {}

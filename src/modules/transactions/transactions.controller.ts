@@ -13,6 +13,8 @@ import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../u
 import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
 import { CreateTransferTransactionUseCase } from '../../use-cases/transaction/create-transfer-transaction.usecase';
 import { CreateTransferTransactionDto } from '../../dto/create-transfer-transaction.dto';
+import { GetStrategicViewUseCase } from '../../use-cases/transaction/get-strategic-view.usecase';
+import { StrategicViewQueryDto } from '../../dto/strategic-view-query.dto';
 
 @Roles(UserRole.USER)
 @Controller('transactions')
@@ -27,6 +29,7 @@ export class TransactionsController {
     private readonly getTransactionsSummaryByAccount: GetTransactionsSummaryByAccountByTransactionTypeUseCase,
     private readonly deleteTransaction: DeleteTransactionUseCase,
     private readonly createTransferTransaction: CreateTransferTransactionUseCase,
+    private readonly getStrategicView: GetStrategicViewUseCase,
   ) {}
 
   @Post('transfer')
@@ -126,6 +129,22 @@ export class TransactionsController {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Failed to delete transaction: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }
+
+  @Get('strategic-view')
+  async strategicView(@Query() query: StrategicViewQueryDto) {
+    this.logger.log(`GET /transactions/strategic-view - startDate=${query.startDate}, endDate=${query.endDate}`, 'TransactionsController');
+
+    try {
+      const result = await this.getStrategicView.execute(query.startDate, query.endDate);
+      this.logger.log(`Strategic view returned ${result.length} transactions`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to retrieve strategic view: ${errorMessage}`, errorStack, 'TransactionsController');
       throw error;
     }
   }

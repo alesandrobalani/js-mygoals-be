@@ -306,6 +306,35 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
+  async findAllByPeriod(startDate: Date, endDate: Date): Promise<Transaction[]> {
+    this.logger.debug(`Retrieving all transactions from ${startDate} to ${endDate}`, 'PostgreSQLTransactionRepository');
+
+    const entities = await this.transactionRepository.find({
+      where: { dueDate: Between(startDate, endDate) },
+      relations: ['category', 'account', 'transactionItem'],
+      order: { dueDate: 'DESC' },
+    });
+
+    return entities.map(entity => ({
+      id: entity.id,
+      description: entity.description || undefined,
+      amount: entity.amount,
+      type: entity.type,
+      category: entity.category,
+      transactionItem: new TransactionItem(
+        entity.transactionItem.id,
+        entity.transactionItem.name,
+        entity.transactionItem.description,
+        entity.transactionItem.updatedAt,
+      ),
+      transactionDate: entity.transactionDate,
+      account: entity.account,
+      updatedAt: entity.updatedAt,
+      dueDate: entity.dueDate || entity.transactionDate,
+      settled: entity.settled,
+    }));
+  }
+
   async findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]> {
     this.logger.debug(`Retrieving transaction summary by account to ${endDate}`, 'PostgreSQLTransactionRepository');
 

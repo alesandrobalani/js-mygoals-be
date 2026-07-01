@@ -143,6 +143,30 @@ curl -X DELETE http://localhost:3000/transactions/<id-da-transacao> \
 ```
 Retorna `204 No Content` em caso de sucesso ou `404 Not Found` se a transação não existir.
 
+### Visão estratégica de transações por período
+```bash
+curl -X GET "http://localhost:3000/transactions/strategic-view?startDate=2024-01-01&endDate=2024-12-31" \
+  -H "Authorization: Bearer <seu-access-token>"
+```
+Retorna array com todas as transações do período, com nomes resolvidos:
+```json
+[
+  {
+    "id": "uuid",
+    "description": "Aluguel",
+    "amount": 1200.00,
+    "type": "expense",
+    "categoryName": "Habitação",
+    "itemName": "Aluguel mensal",
+    "accountName": "Conta Corrente",
+    "transactionDate": "2024-01-10",
+    "dueDate": "2024-01-15",
+    "settled": true
+  }
+]
+```
+Parâmetros obrigatórios: `startDate` e `endDate` (formato `YYYY-MM-DD`). Resultados ordenados por `dueDate DESC`.
+
 ## Categorias
 
 ### Listar todas as categorias

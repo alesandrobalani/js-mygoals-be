@@ -1,0 +1,6 @@
+Quero que seja possível visualizar de forma estratégica os gatos classificados por seu tipo, categooria, item, conta, valor, e se efetivada.
+Para isto preciso que no controller de transação seja criada uma nova funcionalidade que retorne a lista de transações com seus respectivos dados de informação para o período de data e inicial e final.
+Para os dados de tabela de referência, como conta, ao invés de trazer o id da conta, traga o nome da conta. Para as demais referências seguir a mesma regra.
+Crie os testes automatizados unitários e de integração que validem esta nova funcionalidade. Crie testes de happy e bad flows.
+Ajuste a documentação da aplicação.
+Adicione ao catálogo de curls a nova request.

@@ -329,6 +329,85 @@ describe('Transactions integration', () => {
     });
   });
 
+  describe('GET /transactions/strategic-view', () => {
+    it('should return flat list with resolved names for transactions in period', async () => {
+      const account = await accountRepository.create({
+        id: 'strategic-account-1',
+        name: 'Conta Poupança',
+        description: 'Conta para testes estratégicos',
+        updatedAt: new Date(),
+      });
+
+      const transactionItem = await transactionItemRepository.create(
+        new TransactionItem('strategic-item-1', 'Salário', 'Renda mensal', new Date()),
+      );
+
+      const basePayload = {
+        categoryId: '9',
+        transactionItemId: transactionItem.id,
+        accountId: account.id,
+      };
+
+      await request(app.getHttpServer()).post('/transactions')
+        .send({ ...basePayload, description: 'Receita jan', amount: 3000, type: 'income', transactionDate: '2024-01-10', settled: true })
+        .expect(201);
+
+      await request(app.getHttpServer()).post('/transactions')
+        .send({ ...basePayload, description: 'Despesa mar', amount: 500, type: 'expense', transactionDate: '2024-03-05', settled: false })
+        .expect(201);
+
+      await request(app.getHttpServer()).post('/transactions')
+        .send({ ...basePayload, description: 'Fora do período', amount: 9999, type: 'expense', transactionDate: '2023-12-01', settled: true })
+        .expect(201);
+
+      const response = await request(app.getHttpServer())
+        .get('/transactions/strategic-view')
+        .query({ startDate: '2024-01-01', endDate: '2024-12-31' })
+        .expect(200);
+
+      expect(response.body).toHaveLength(2);
+      const item = response.body[0];
+      expect(item).toHaveProperty('categoryName');
+      expect(item).toHaveProperty('accountName');
+      expect(item).toHaveProperty('itemName');
+      expect(item).not.toHaveProperty('category');
+      expect(item).not.toHaveProperty('account');
+      expect(item).not.toHaveProperty('transactionItem');
+      expect(item.accountName).toBe('Conta Poupança');
+      expect(item.itemName).toBe('Salário');
+    });
+
+    it('should return 400 when startDate is missing', async () => {
+      await request(app.getHttpServer())
+        .get('/transactions/strategic-view')
+        .query({ endDate: '2024-12-31' })
+        .expect(400);
+    });
+
+    it('should return 400 when endDate is missing', async () => {
+      await request(app.getHttpServer())
+        .get('/transactions/strategic-view')
+        .query({ startDate: '2024-01-01' })
+        .expect(400);
+    });
+
+    it('should return 400 when dates are invalid', async () => {
+      await request(app.getHttpServer())
+        .get('/transactions/strategic-view')
+        .query({ startDate: 'not-a-date', endDate: 'also-not-a-date' })
+        .expect(400);
+    });
+
+    it('should return empty array when no transactions exist in period', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/transactions/strategic-view')
+        .query({ startDate: '2020-01-01', endDate: '2020-12-31' })
+        .expect(200);
+
+      expect(response.body).toHaveLength(0);
+    });
+  });
+
   it('should return transaction summary grouped by account and type for a period', async () => {
     const account1 = await accountRepository.create({
       id: 'summary-account-1',
