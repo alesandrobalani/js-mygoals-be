@@ -1,4 +1,18 @@
 import { Transaction } from '../entities/transaction.entity';
+import { TransactionType } from '../../dto/create-transaction.dto';
+
+export interface StrategicViewTransaction {
+  id: string;
+  description?: string;
+  amount: number;
+  type: TransactionType;
+  categoryName: string;
+  itemName: string;
+  accountName: string;
+  transactionDate: Date;
+  dueDate: Date;
+  settled: Boolean;
+}
 
 export interface TransactionByTypeAndSettledSummary {
   incomeSettled: number;
@@ -38,5 +52,6 @@ export interface TransactionRepository {
   findSumByPeriodGroupByTypeAndSettled(startDate: Date, endDate: Date): Promise<TransactionByTypeAndSettledSummary>;
   findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]>;
   findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions>;
+  findAllByPeriod(startDate: Date, endDate: Date): Promise<Transaction[]>;
   delete(id: string): Promise<void>;
 }

@@ -94,6 +94,26 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
 - POST `/transactions/transfer` - cria transferência entre contas, gerando uma transação de débito e uma de crédito (body: debitAccountId, creditAccountId, categoryId, transactionItemId, transactionDate, dueDate, amount, settled)
 - DELETE `/transactions/:id` - remove uma transação (204 No Content; 404 se não encontrada)
+- GET `/transactions/strategic-view` - retorna lista de transações do período com nomes resolvidos (query: startDate, endDate)
+
+#### Visão Estratégica (`GET /transactions/strategic-view`)
+
+Retorna todas as transações do período informado com os dados de referência resolvidos por nome:
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | string (UUID) | Identificador da transação |
+| `description` | string? | Descrição da transação |
+| `amount` | number | Valor da transação |
+| `type` | `income` \| `expense` | Tipo da transação |
+| `categoryName` | string | Nome da categoria |
+| `itemName` | string | Nome do item de transação |
+| `accountName` | string | Nome da conta |
+| `transactionDate` | date | Data da transação |
+| `dueDate` | date | Data de vencimento |
+| `settled` | boolean | Se foi efetivada |
+
+Query params obrigatórios: `startDate` e `endDate` (formato `YYYY-MM-DD`). Ordenado por `dueDate DESC`.
 - POST `/categories` - cria categoria (body: name, description?)
 - GET `/categories` - lista categorias
 - POST `/accounts` - cria conta (body: name, description?)
