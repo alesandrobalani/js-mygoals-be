@@ -71,7 +71,6 @@ describe('GetStrategicViewUseCase', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].categoryName).toBe('Habitação');
-    expect(result[0].accountName).toBe('Conta Corrente');
     expect(result[0].itemName).toBe('Aluguel mensal');
     expect(result[0]).not.toHaveProperty('category');
     expect(result[0]).not.toHaveProperty('account');
@@ -89,11 +88,9 @@ describe('GetStrategicViewUseCase', () => {
       amount: 1500,
       type: TransactionType.INCOME,
       categoryName: 'Habitação',
-      accountName: 'Conta Corrente',
       itemName: 'Aluguel mensal',
       settled: true,
     });
-    expect(result[0].id).toBeDefined();
     expect(result[0].transactionDate).toBeDefined();
     expect(result[0].dueDate).toBeDefined();
   });

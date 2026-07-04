@@ -368,12 +368,11 @@ describe('Transactions integration', () => {
       expect(response.body).toHaveLength(2);
       const item = response.body[0];
       expect(item).toHaveProperty('categoryName');
-      expect(item).toHaveProperty('accountName');
       expect(item).toHaveProperty('itemName');
       expect(item).not.toHaveProperty('category');
       expect(item).not.toHaveProperty('account');
       expect(item).not.toHaveProperty('transactionItem');
-      expect(item.accountName).toBe('Conta Poupança');
+      expect(item).not.toHaveProperty("accountName");
       expect(item.itemName).toBe('Salário');
     });
 
