@@ -19,14 +19,15 @@ export class GetStrategicViewUseCase {
     try {
       const transactions = await this.transactionRepository.findAllByPeriod(startDate, endDate);
 
-      const result: StrategicViewTransaction[] = transactions.map(t => ({
-        id: t.id,
-        description: t.description,
+
+      const result: StrategicViewTransaction[] = 
+      transactions
+      .filter(t => t.category.isTransfer === false)
+      .map(t => ({
         amount: t.amount,
         type: t.type,
         categoryName: t.category.name,
         itemName: t.transactionItem.name,
-        accountName: t.account.name,
         transactionDate: t.transactionDate,
         dueDate: t.dueDate,
         settled: t.settled,
