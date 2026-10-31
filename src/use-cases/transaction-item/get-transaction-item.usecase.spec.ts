@@ -19,7 +19,7 @@ describe('GetTransactionItemUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(TransactionItemEntity).clear(); });
 
   it('should return the transaction item if it exists', async () => {
-    const useCase = new GetTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new GetTransactionItemUseCase(transactionItemRepository);
 
     const item = new TransactionItem(randomUUID(), 'Test Item', 'Test desc', new Date());
     await transactionItemRepository.create(item);
@@ -30,7 +30,7 @@ describe('GetTransactionItemUseCase', () => {
   });
 
   it('should throw an error if the transaction item does not exist', async () => {
-    const useCase = new GetTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new GetTransactionItemUseCase(transactionItemRepository);
 
     await expect(useCase.execute('nonexistent')).rejects.toThrow('Transaction item with ID "nonexistent" not found');
   });

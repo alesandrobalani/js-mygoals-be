@@ -33,8 +33,8 @@ describe('LoginUseCase', () => {
 
   async function makeUseCase() {
     const jwtService = new JwtService({ secret: 'test-secret' });
-    const tokenService = new TokenService(jwtService, refreshTokenRepository as any);
-    const useCase = new LoginUseCase(userRepository as any, tokenService);
+    const tokenService = new TokenService(jwtService, refreshTokenRepository);
+    const useCase = new LoginUseCase(userRepository, tokenService);
 
     const passwordHash = await bcrypt.hash('correct-password', 12);
     await userRepository.create(new User(randomUUID(), 'user@example.com', passwordHash, 'Test User', UserRole.USER, new Date()));

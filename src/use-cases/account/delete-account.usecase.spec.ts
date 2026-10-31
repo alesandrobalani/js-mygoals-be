@@ -12,7 +12,6 @@ import { TransactionItem } from '../../domain/entities/transaction-item.entity';
 import { Category } from '../../domain/entities/category.entity';
 import { TransactionType } from '../../dto/create-transaction.dto';
 import { randomUUID } from 'crypto';
-import { Account } from '../../domain/entities/account.entity';
 
 describe('DeleteAccountUseCase', () => {
   let dataSource: DataSource;
@@ -38,7 +37,7 @@ describe('DeleteAccountUseCase', () => {
   });
 
   it('should delete an account successfully', async () => {
-    const useCase = new DeleteAccountUseCase(accountRepository as any, transactionRepository as any);
+    const useCase = new DeleteAccountUseCase(accountRepository, transactionRepository);
 
     const account = await accountRepository.create({
       id: randomUUID(),
@@ -54,13 +53,13 @@ describe('DeleteAccountUseCase', () => {
   });
 
   it('should throw error when account not found', async () => {
-    const useCase = new DeleteAccountUseCase(accountRepository as any, transactionRepository as any);
+    const useCase = new DeleteAccountUseCase(accountRepository, transactionRepository);
 
     await expect(useCase.execute('non-existent-id')).rejects.toThrow('Account with ID "non-existent-id" not found');
   });
 
   it('should not allow deleting an account with associated transactions', async () => {
-    const useCase = new DeleteAccountUseCase(accountRepository as any, transactionRepository as any);
+    const useCase = new DeleteAccountUseCase(accountRepository, transactionRepository);
 
     const account = await accountRepository.create({
       id: randomUUID(),

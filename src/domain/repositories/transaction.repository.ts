@@ -8,7 +8,7 @@ export interface StrategicViewTransaction {
   itemName: string;
   transactionDate: Date;
   dueDate: Date;
-  settled: Boolean;
+  settled: boolean;
 }
 
 export interface TransactionByTypeAndSettledSummary {

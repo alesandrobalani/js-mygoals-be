@@ -18,7 +18,7 @@ describe('UpdateAccountUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(AccountEntity).clear(); });
 
   it('should update an account successfully', async () => {
-    const useCase = new UpdateAccountUseCase(accountRepository as any);
+    const useCase = new UpdateAccountUseCase(accountRepository);
 
     const originalAccount = await accountRepository.create({
       id: randomUUID(),
@@ -47,7 +47,7 @@ describe('UpdateAccountUseCase', () => {
   });
 
   it('should update an account without changing description', async () => {
-    const useCase = new UpdateAccountUseCase(accountRepository as any);
+    const useCase = new UpdateAccountUseCase(accountRepository);
 
     const originalAccount = await accountRepository.create({
       id: randomUUID(),
@@ -70,7 +70,7 @@ describe('UpdateAccountUseCase', () => {
   });
 
   it('should throw error when account not found', async () => {
-    const useCase = new UpdateAccountUseCase(accountRepository as any);
+    const useCase = new UpdateAccountUseCase(accountRepository);
 
     await expect(
       useCase.execute({ id: 'non-existent-id', name: 'New Name', description: 'New description' }),

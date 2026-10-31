@@ -1,8 +1,6 @@
 ﻿import { DataSource } from 'typeorm';
 import { createTestDataSource, createTestRepositories, seedTestCategories } from '../../test-utils/test-datasource';
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
-import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
-import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase } from './get-transactions-summary-by-period.usecase';
 import { Transaction } from '../../domain/entities/transaction.entity';
@@ -33,14 +31,14 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   afterAll(async () => { await dataSource.destroy(); });
   beforeEach(async () => { await dataSource.getRepository(TransactionEntity).clear(); });
 
-  const makeTransaction = (type: TransactionType, amount: number, transactionDate: Date, settled: Boolean): Transaction =>
+  const makeTransaction = (type: TransactionType, amount: number, transactionDate: Date, settled: boolean): Transaction =>
     new Transaction(
       randomUUID(), 'desc', amount, type,
       sharedCategory, sharedItem, transactionDate, sharedAccount, new Date(), transactionDate, settled,
     );
 
   it('should return zeros when no transactions exist in period', async () => {
-    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
+    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo);
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'));
 
@@ -48,7 +46,7 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum only income transactions in period', async () => {
-    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
+    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo);
 
     await repo.create(makeTransaction(TransactionType.INCOME, 1000, new Date('2024-06-15'), true));
     await repo.create(makeTransaction(TransactionType.INCOME, 500, new Date('2024-08-20'), false));
@@ -62,7 +60,7 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum only expense transactions in period', async () => {
-    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
+    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo);
 
     await repo.create(makeTransaction(TransactionType.EXPENSE, 200, new Date('2024-03-10'), true));
     await repo.create(makeTransaction(TransactionType.EXPENSE, 300, new Date('2024-07-05'), false));
@@ -76,7 +74,7 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should sum both income and expense transactions correctly', async () => {
-    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
+    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo);
 
     await repo.create(makeTransaction(TransactionType.INCOME, 3000, new Date('2024-01-15'), true));
     await repo.create(makeTransaction(TransactionType.INCOME, 2000, new Date('2024-06-01'), false));
@@ -92,7 +90,7 @@ describe('GetTransactionsSummaryByPeriodUseCase', () => {
   });
 
   it('should not count transactions outside the period', async () => {
-    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo as any);
+    const useCase = new GetTransactionsSummaryByPeriodGroupByTrasactionTypeUseCase(repo);
 
     await repo.create(makeTransaction(TransactionType.INCOME, 9999, new Date('2023-06-15'), false));
     await repo.create(makeTransaction(TransactionType.INCOME, 1000, new Date('2024-06-15'), false));

@@ -68,7 +68,7 @@ describe('Accounts integration', () => {
       .expect(200);
 
     expect(Array.isArray(listResponse.body)).toBe(true);
-    expect(listResponse.body.some((account: any) => account.id === accountId)).toBe(true);
+    expect(listResponse.body.some((account: { id: string }) => account.id === accountId)).toBe(true);
 
     const updateResponse = await request(app.getHttpServer())
       .put(`/accounts/${accountId}`)
@@ -90,7 +90,7 @@ describe('Accounts integration', () => {
       .get('/accounts')
       .expect(200);
 
-    expect(finalListResponse.body.some((account: any) => account.id === accountId)).toBe(false);
+    expect(finalListResponse.body.some((account: { id: string }) => account.id === accountId)).toBe(false);
   });
 
   it('should not allow deleting an account with associated transactions', async () => {

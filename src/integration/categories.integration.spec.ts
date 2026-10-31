@@ -48,6 +48,6 @@ describe('Categories integration', () => {
       .expect(200);
 
     expect(Array.isArray(listResponse.body)).toBe(true);
-    expect(listResponse.body.some((category: any) => category.name === 'Teste Categoria')).toBe(true);
+    expect(listResponse.body.some((category: { name: string }) => category.name === 'Teste Categoria')).toBe(true);
   });
 });

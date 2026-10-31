@@ -33,8 +33,8 @@ describe('RefreshTokenUseCase', () => {
 
   function makeUseCase() {
     const jwtService = new JwtService({ secret: 'test-secret' });
-    const tokenService = new TokenService(jwtService, refreshTokenRepository as any);
-    return new RefreshTokenUseCase(refreshTokenRepository as any, userRepository as any, tokenService);
+    const tokenService = new TokenService(jwtService, refreshTokenRepository);
+    return new RefreshTokenUseCase(refreshTokenRepository, userRepository, tokenService);
   }
 
   it('should return a new token pair for a valid refresh token', async () => {

@@ -22,7 +22,7 @@ describe('GetCategoriesUseCase', () => {
   });
 
   it('should return all categories including pre-seeded ones', async () => {
-    const useCase = new GetCategoriesUseCase(categoryRepository as any);
+    const useCase = new GetCategoriesUseCase(categoryRepository);
 
     const result = await useCase.execute();
 
@@ -30,7 +30,7 @@ describe('GetCategoriesUseCase', () => {
   });
 
   it('should include user-created categories', async () => {
-    const useCase = new GetCategoriesUseCase(categoryRepository as any);
+    const useCase = new GetCategoriesUseCase(categoryRepository);
 
     const initialCount = (await useCase.execute()).length;
 

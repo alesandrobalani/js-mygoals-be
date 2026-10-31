@@ -59,7 +59,7 @@ describe('TransactionItems integration', () => {
 
     const listResponse = await request(app.getHttpServer()).get('/transaction-items').expect(200);
     expect(Array.isArray(listResponse.body)).toBe(true);
-    expect(listResponse.body.some((item: any) => item.id === itemId)).toBe(true);
+    expect(listResponse.body.some((item: { id: string }) => item.id === itemId)).toBe(true);
 
     const getOneResponse = await request(app.getHttpServer()).get(`/transaction-items/${itemId}`).expect(200);
     expect(getOneResponse.body.id).toBe(itemId);
@@ -74,7 +74,7 @@ describe('TransactionItems integration', () => {
     await request(app.getHttpServer()).delete(`/transaction-items/${itemId}`).expect(200);
 
     const finalList = await request(app.getHttpServer()).get('/transaction-items').expect(200);
-    expect(finalList.body.some((item: any) => item.id === itemId)).toBe(false);
+    expect(finalList.body.some((item: { id: string }) => item.id === itemId)).toBe(false);
   });
 
   it('should not allow deleting a transaction item used by transactions', async () => {

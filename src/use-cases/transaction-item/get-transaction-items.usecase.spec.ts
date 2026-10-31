@@ -19,7 +19,7 @@ describe('GetTransactionItemsUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(TransactionItemEntity).clear(); });
 
   it('should return an empty array when no transaction items exist', async () => {
-    const useCase = new GetTransactionItemsUseCase(transactionItemRepository as any);
+    const useCase = new GetTransactionItemsUseCase(transactionItemRepository);
 
     const items = await useCase.execute();
 
@@ -27,7 +27,7 @@ describe('GetTransactionItemsUseCase', () => {
   });
 
   it('should return all transaction items', async () => {
-    const useCase = new GetTransactionItemsUseCase(transactionItemRepository as any);
+    const useCase = new GetTransactionItemsUseCase(transactionItemRepository);
 
     await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item 1', 'Desc 1', new Date()));
     await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item 2', 'Desc 2', new Date()));

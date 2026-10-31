@@ -1,8 +1,6 @@
 ﻿import { DataSource } from 'typeorm';
 import { createTestDataSource, createTestRepositories, seedTestCategories } from '../../test-utils/test-datasource';
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
-import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
-import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { FindTransactionsByPeriodUseCase } from './find-transactions-by-period.usecase';
 import { Transaction } from '../../domain/entities/transaction.entity';
@@ -40,7 +38,7 @@ describe('FindTransactionsByPeriodUseCase', () => {
     );
 
   it('should return empty result when no transactions exist in period', async () => {
-    const useCase = new FindTransactionsByPeriodUseCase(repo as any);
+    const useCase = new FindTransactionsByPeriodUseCase(repo);
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'), 1, 20);
 
@@ -51,7 +49,7 @@ describe('FindTransactionsByPeriodUseCase', () => {
   });
 
   it('should return only transactions within the period', async () => {
-    const useCase = new FindTransactionsByPeriodUseCase(repo as any);
+    const useCase = new FindTransactionsByPeriodUseCase(repo);
 
     await repo.create(makeTransaction(100, new Date('2024-03-15')));
     await repo.create(makeTransaction(200, new Date('2024-07-20')));
@@ -65,7 +63,7 @@ describe('FindTransactionsByPeriodUseCase', () => {
   });
 
   it('should paginate results correctly', async () => {
-    const useCase = new FindTransactionsByPeriodUseCase(repo as any);
+    const useCase = new FindTransactionsByPeriodUseCase(repo);
 
     for (let i = 1; i <= 15; i++) {
       const month = String(((i - 1) % 12) + 1).padStart(2, '0');
@@ -84,7 +82,7 @@ describe('FindTransactionsByPeriodUseCase', () => {
   });
 
   it('should respect the max limit of 100 records', async () => {
-    const useCase = new FindTransactionsByPeriodUseCase(repo as any);
+    const useCase = new FindTransactionsByPeriodUseCase(repo);
 
     for (let i = 0; i < 150; i++) {
       await repo.create(makeTransaction(100, new Date('2024-06-15')));
@@ -98,7 +96,7 @@ describe('FindTransactionsByPeriodUseCase', () => {
   });
 
   it('should return results ordered by transactionDate descending', async () => {
-    const useCase = new FindTransactionsByPeriodUseCase(repo as any);
+    const useCase = new FindTransactionsByPeriodUseCase(repo);
 
     await repo.create(makeTransaction(100, new Date('2024-01-10')));
     await repo.create(makeTransaction(200, new Date('2024-06-15')));

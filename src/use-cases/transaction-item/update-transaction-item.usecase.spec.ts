@@ -19,7 +19,7 @@ describe('UpdateTransactionItemUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(TransactionItemEntity).clear(); });
 
   it('should update a transaction item', async () => {
-    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository);
 
     const item = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Original Name', 'Original desc', new Date()));
 
@@ -32,13 +32,13 @@ describe('UpdateTransactionItemUseCase', () => {
   });
 
   it('should throw an error if the transaction item does not exist', async () => {
-    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository);
 
     await expect(useCase.execute('nonexistent', { name: 'New Name' })).rejects.toThrow('Transaction item with ID "nonexistent" not found');
   });
 
   it('should throw an error if updating to a duplicate name', async () => {
-    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository);
 
     const id1 = randomUUID();
     const id2 = randomUUID();
@@ -49,7 +49,7 @@ describe('UpdateTransactionItemUseCase', () => {
   });
 
   it('should allow updating description without changing name', async () => {
-    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new UpdateTransactionItemUseCase(transactionItemRepository);
 
     const item = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Name', 'Old desc', new Date()));
 

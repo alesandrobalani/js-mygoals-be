@@ -19,7 +19,7 @@ describe('GetAccountsUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(AccountEntity).clear(); });
 
   it('should return an empty array when no accounts exist', async () => {
-    const useCase = new GetAccountsUseCase(accountRepository as any);
+    const useCase = new GetAccountsUseCase(accountRepository);
 
     const result = await useCase.execute();
 
@@ -27,7 +27,7 @@ describe('GetAccountsUseCase', () => {
   });
 
   it('should return all accounts', async () => {
-    const useCase = new GetAccountsUseCase(accountRepository as any);
+    const useCase = new GetAccountsUseCase(accountRepository);
 
     await accountRepository.create(new Account(randomUUID(), 'Conta Corrente', 'Conta principal', new Date()));
     await accountRepository.create(new Account(randomUUID(), 'PoupanÃ§a', undefined, new Date()));
