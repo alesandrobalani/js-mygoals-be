@@ -46,6 +46,17 @@ API padrão: `http://localhost:3000`
 - Ao criar uma transferência são geradas duas transações: uma de **despesa** (`expense`) na conta debitada e uma de **receita** (`income`) na conta creditada
 - Transferências são excluídas dos sumários de receita/despesa
 
+## Cópia de Lançamentos para Competências Futuras
+- Endpoint: `POST /transactions/copy` (body: `transactionIds`, `targetMonths`, `dryRun?`)
+- A competência de um lançamento é o mês do seu `dueDate`
+- `transactionIds`: 1 a 500 UUIDs sem repetição; `targetMonths`: 1 a 24 meses `YYYY-MM` sem repetição; `dryRun`: boolean, padrão `false`
+- Cada origem é copiada para cada mês de destino com `description`, `amount`, `type`, conta, categoria e item; `settled` sempre `false`
+- `dueDate` mantém o dia no mês de destino (ou o último dia do mês, ex.: 31/01 → 28/02); `transactionDate` é deslocada pelo mesmo número de meses, com o mesmo ajuste
+- Duplicados (mesmos conta, categoria, item, tipo, valor, descrição e `dueDate` calculado — no banco ou no próprio lote) são pulados e listados em `skipped`
+- Ids inexistentes → `404` com `notFoundIds`; transferências (`category.isTransfer`) → `400` com `transferIds`. Nesses casos nada é criado
+- `dryRun: true` não grava nada (prévia); `dryRun: false` grava tudo em uma única transação de banco (tudo ou nada)
+- Resposta `200`: `{ dryRun, created: [{ sourceId, targetMonth, description, amount, type, dueDate, transactionDate }], skipped: [{ sourceId, targetMonth, dueDate, reason: "duplicate" }] }` (datas em `YYYY-MM-DD`)
+
 ## Autenticação e Autorização
 
 A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de acesso baseado em papéis (RBAC).
@@ -93,6 +104,7 @@ A API utiliza JWT (JSON Web Tokens) com refresh token rotation e controle de ace
 ### Recursos financeiros (roles `user` e `admin`)
 - POST `/transactions` - cria transação (body: description?, amount, type, categoryId, transactionItemId, transactionDate, accountId, dueDate?)
 - POST `/transactions/transfer` - cria transferência entre contas, gerando uma transação de débito e uma de crédito (body: debitAccountId, creditAccountId, categoryId, transactionItemId, transactionDate, dueDate, amount, settled)
+- POST `/transactions/copy` - copia lançamentos para competências futuras, com prévia via `dryRun` (body: transactionIds, targetMonths, dryRun?)
 - DELETE `/transactions/:id` - remove uma transação (204 No Content; 404 se não encontrada)
 - GET `/transactions/strategic-view` - retorna lista de transações do período com nomes resolvidos (query: startDate, endDate)
 

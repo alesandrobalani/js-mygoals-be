@@ -1,0 +1,63 @@
+Quero permitir copiar lançamentos financeiros existentes para competências futuras.
+A competência de um lançamento é definida pelo mês do vencimento (dueDate).
+
+Crie no controller de transações um novo endpoint:
+
+POST /transactions/copy
+Body:
+{
+  "transactionIds": ["<uuid>", ...],
+  "targetMonths": ["2026-11", "2027-01", ...],
+  "dryRun": true | false
+}
+
+Regras de validação:
+- transactionIds: obrigatório, de 1 a 500 itens, cada um UUID válido, sem repetição.
+- targetMonths: obrigatório, de 1 a 24 itens, formato YYYY-MM, sem repetição.
+- dryRun: opcional, padrão false.
+- Se algum id não existir, retornar 404 informando os ids não encontrados e não criar nada.
+- Lançamentos de categoria de transferência (category.isTransfer = true) NÃO podem ser copiados:
+  se algum dos selecionados for transferência, retornar 400 listando-os e não criar nada.
+
+Regras da cópia (para cada lançamento de origem x cada mês de destino):
+- Copiar: description, amount, type, account, category, transactionItem.
+- settled = false sempre.
+- dueDate: mesmo dia do vencimento original no mês de destino. Se o dia não existir no mês
+  de destino, usar o último dia do mês (ex.: 31/01 -> 28/02, ou 29/02 em ano bissexto).
+- transactionDate: deslocar a data original pelo mesmo número de meses entre a competência
+  de origem e a de destino, com o mesmo ajuste de fim de mês. Assim mantém-se a diferença
+  original entre data e vencimento.
+- Novo id (uuid) e updatedAt = agora.
+- Mês de destino igual à competência de origem é permitido (a regra de duplicado se aplica).
+
+Duplicados:
+- Considerar duplicado quando já existir no banco um lançamento com mesmos account, category,
+  transactionItem, type, amount, description e dueDate calculado.
+- Duplicados são pulados (não criados) e informados na resposta.
+
+Resposta (200), igual para dryRun true ou false:
+{
+  "dryRun": boolean,
+  "created": [ { "sourceId", "targetMonth", "description", "amount", "type", "dueDate", "transactionDate" } ],
+  "skipped": [ { "sourceId", "targetMonth", "dueDate", "reason": "duplicate" } ]
+}
+- Com dryRun = true nada é gravado; "created" representa o que seria criado (alimenta a prévia do frontend).
+- Com dryRun = false todas as cópias devem ser gravadas em uma única transação de banco
+  (tudo ou nada).
+
+Implementação (seguir o CLAUDE.md):
+- DTO CopyTransactionsDto com class-validator.
+- Use case CopyTransactionsUseCase em src/use-cases/transaction/.
+- Repositório: findByIds, createMany (transacional) e a busca de candidatos a duplicado
+  no intervalo de datas de destino.
+- Utilitário de datas addMonthsClamped(date, months) com testes próprios
+  (dias 29, 30, 31, ano bissexto, virada de ano).
+
+Testes (happy e bad flows):
+- Unitários do use case: cópia para 1 e vários meses, ajuste de fim de mês, deslocamento da
+  transactionDate, settled false, dryRun não grava, duplicado pulado, id inexistente (404),
+  transferência recusada (400), rollback quando a gravação falha no meio.
+- Integração do endpoint: validações do DTO (limites, formato YYYY-MM, uuid), fluxo completo
+  com e sem dryRun.
+
+Atualize o README.md e o CURL_EXAMPLES.md.

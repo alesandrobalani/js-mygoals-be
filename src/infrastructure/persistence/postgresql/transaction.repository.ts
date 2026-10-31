@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { TransactionRepository, TransactionByTypeAndSettledSummary, TransactionByAccountAndTypeAndSettledSummary, PaginatedTransactions, TransferResult } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
@@ -331,6 +331,86 @@ export class PostgreSQLTransactionRepository implements TransactionRepository {
       dueDate: entity.dueDate || entity.transactionDate,
       settled: entity.settled,
     }));
+  }
+
+  async findByIds(ids: string[]): Promise<Transaction[]> {
+    if (ids.length === 0) return [];
+    this.logger.debug(`Retrieving ${ids.length} transactions by ids`, 'PostgreSQLTransactionRepository');
+
+    const entities = await this.transactionRepository.find({
+      where: { id: In(ids) },
+      relations: ['category', 'account', 'transactionItem'],
+    });
+    return entities.map(entity => this.toDomain(entity));
+  }
+
+  async findAllByDueDateRange(startDate: string, endDate: string): Promise<Transaction[]> {
+    this.logger.debug(`Retrieving transactions by due date from ${startDate} to ${endDate}`, 'PostgreSQLTransactionRepository');
+
+    // Datas como string `YYYY-MM-DD`: evita que o driver converta `Date` para datetime UTC e desloque o intervalo.
+    const entities = await this.transactionRepository
+      .createQueryBuilder('t')
+      .innerJoinAndSelect('t.category', 'category')
+      .innerJoinAndSelect('t.account', 'account')
+      .innerJoinAndSelect('t.transactionItem', 'transactionItem')
+      .where('t.dueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getMany();
+    return entities.map(entity => this.toDomain(entity));
+  }
+
+  async createMany(transactions: Transaction[]): Promise<void> {
+    if (transactions.length === 0) return;
+    this.logger.debug(`Creating ${transactions.length} transactions in a single database transaction`, 'PostgreSQLTransactionRepository');
+
+    try {
+      await this.transactionRepository.manager.transaction(async (manager) => {
+        for (const transaction of transactions) {
+          await manager.save(TransactionEntity, this.toEntity(transaction));
+        }
+      });
+      this.logger.debug(`${transactions.length} transactions created`, 'PostgreSQLTransactionRepository');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to create transactions in batch: ${errorMessage}`, errorStack, 'PostgreSQLTransactionRepository');
+      throw error;
+    }
+  }
+
+  private toEntity(transaction: Transaction): TransactionEntity {
+    const entity = new TransactionEntity();
+    entity.id = transaction.id;
+    entity.description = transaction.description ?? null;
+    entity.amount = transaction.amount;
+    entity.type = transaction.type;
+    entity.categoryId = transaction.category.id;
+    entity.transactionItemId = transaction.transactionItem.id;
+    entity.accountId = transaction.account.id;
+    entity.transactionDate = transaction.transactionDate;
+    entity.dueDate = transaction.dueDate;
+    entity.settled = transaction.settled;
+    return entity;
+  }
+
+  private toDomain(entity: TransactionEntity): Transaction {
+    return {
+      id: entity.id,
+      description: entity.description || undefined,
+      amount: entity.amount,
+      type: entity.type,
+      category: entity.category,
+      transactionItem: new TransactionItem(
+        entity.transactionItem.id,
+        entity.transactionItem.name,
+        entity.transactionItem.description,
+        entity.transactionItem.updatedAt,
+      ),
+      transactionDate: entity.transactionDate,
+      account: entity.account,
+      updatedAt: entity.updatedAt,
+      dueDate: entity.dueDate || entity.transactionDate,
+      settled: entity.settled,
+    };
   }
 
   async findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]> {
