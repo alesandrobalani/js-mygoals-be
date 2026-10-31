@@ -10,3 +10,8 @@ logs/
 
 logs*-audit.json
 tsconfig.build.tsbuildinfo
+
+*.tsbuildinfo
+
+# Claude Code (configuração pessoal)
+.claude/settings.local.json
