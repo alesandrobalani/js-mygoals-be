@@ -3,10 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { TransactionRepository, TransactionByTypeAndSettledSummary, TransactionByAccountAndTypeAndSettledSummary, PaginatedTransactions, TransferResult } from '../../../domain/repositories/transaction.repository';
 import { Transaction } from '../../../domain/entities/transaction.entity';
-import { Account } from '../../../domain/entities/account.entity';
 import { TransactionItem } from '../../../domain/entities/transaction-item.entity';
 import { TransactionEntity } from './transaction.entity';
-import { TransactionItemEntity } from './transaction-item.entity';
 
 @Injectable()
 export class PostgreSQLTransactionRepository implements TransactionRepository {

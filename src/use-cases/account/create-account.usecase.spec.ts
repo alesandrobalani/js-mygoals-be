@@ -17,7 +17,7 @@ describe('CreateAccountUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(AccountEntity).clear(); });
 
   it('should create an account', async () => {
-    const useCase = new CreateAccountUseCase(accountRepository as any);
+    const useCase = new CreateAccountUseCase(accountRepository);
 
     const account = await useCase.execute({
       name: 'Conta de Teste',
@@ -33,7 +33,7 @@ describe('CreateAccountUseCase', () => {
   });
 
   it('should not allow duplicate account names', async () => {
-    const useCase = new CreateAccountUseCase(accountRepository as any);
+    const useCase = new CreateAccountUseCase(accountRepository);
 
     await useCase.execute({ name: 'Conta Existente', description: 'Primeira conta' });
 

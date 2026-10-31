@@ -6,11 +6,11 @@ import { logger } from './config/winston.config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: {
-      log: (message: any, context?: string) => logger.info(message, { context }),
-      error: (message: any, trace?: string, context?: string) => logger.error(message, { context, trace }),
-      warn: (message: any, context?: string) => logger.warn(message, { context }),
-      debug: (message: any, context?: string) => logger.debug(message, { context }),
-      verbose: (message: any, context?: string) => logger.verbose(message, { context }),
+      log: (message: string, context?: string) => logger.info(message, { context }),
+      error: (message: string, trace?: string, context?: string) => logger.error(message, { context, trace }),
+      warn: (message: string, context?: string) => logger.warn(message, { context }),
+      debug: (message: string, context?: string) => logger.debug(message, { context }),
+      verbose: (message: string, context?: string) => logger.verbose(message, { context }),
     },
   });
 

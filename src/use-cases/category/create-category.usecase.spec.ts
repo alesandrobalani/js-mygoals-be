@@ -17,7 +17,7 @@ describe('CreateCategoryUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(CategoryEntity).clear(); });
 
   it('should create a category', async () => {
-    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+    const useCase = new CreateCategoryUseCase(categoryRepository);
 
     const category = await useCase.execute({
       name: 'Nova Categoria',
@@ -34,7 +34,7 @@ describe('CreateCategoryUseCase', () => {
   });
 
   it('should create a transfer category when isTransfer is true', async () => {
-    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+    const useCase = new CreateCategoryUseCase(categoryRepository);
 
     const category = await useCase.execute({
       name: 'Transferência',
@@ -49,7 +49,7 @@ describe('CreateCategoryUseCase', () => {
   });
 
   it('should default isTransfer to false when not provided', async () => {
-    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+    const useCase = new CreateCategoryUseCase(categoryRepository);
 
     const category = await useCase.execute({ name: 'Sem Transfer Flag' });
 
@@ -57,7 +57,7 @@ describe('CreateCategoryUseCase', () => {
   });
 
   it('should not create a category with a duplicate name', async () => {
-    const useCase = new CreateCategoryUseCase(categoryRepository as any);
+    const useCase = new CreateCategoryUseCase(categoryRepository);
 
     await useCase.execute({ name: 'Categoria Existente', description: 'Primeira categoria' });
 

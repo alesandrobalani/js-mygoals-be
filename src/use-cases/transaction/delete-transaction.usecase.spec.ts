@@ -36,17 +36,17 @@ describe('DeleteTransactionUseCase', () => {
     await dataSource.getRepository(TransactionItemEntity).clear();
   });
 
-  const makeDeleteUseCase = () => new DeleteTransactionUseCase(transactionRepository as any);
+  const makeDeleteUseCase = () => new DeleteTransactionUseCase(transactionRepository);
 
   it('deve remover a transação existente', async () => {
     const account = await accountRepository.create({ id: randomUUID(), name: 'Conta Teste', description: undefined, updatedAt: new Date() });
     const item = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Item Teste', undefined, new Date()));
 
     const createUseCase = new CreateTransactionUseCase(
-      transactionRepository as any,
-      createTestRepositories(dataSource).categoryRepository as any,
-      accountRepository as any,
-      transactionItemRepository as any,
+      transactionRepository,
+      createTestRepositories(dataSource).categoryRepository,
+      accountRepository,
+      transactionItemRepository,
     );
 
     const created = await createUseCase.execute({

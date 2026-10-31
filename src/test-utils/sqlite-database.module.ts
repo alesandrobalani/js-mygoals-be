@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { patchSqliteDriverForTimestamp } from './sqlite-timestamp-patch';
 import { AccountEntity } from '../infrastructure/persistence/postgresql/account.entity';
 import { CategoryEntity } from '../infrastructure/persistence/postgresql/category.entity';
 import { RefreshTokenEntity } from '../infrastructure/persistence/postgresql/refresh-token.entity';
@@ -22,20 +23,6 @@ const ALL_ENTITIES = [
   TransactionEntity,
   UserEntity,
 ];
-
-function patchSqliteDriverForTimestamp(dataSource: DataSource): void {
-  const driver = (dataSource as any).driver;
-  driver.supportedDataTypes.push('timestamp');
-  const origNormalizeType = driver.normalizeType.bind(driver);
-  driver.normalizeType = (col: any) =>
-    col.type === 'timestamp' ? 'datetime' : origNormalizeType(col);
-  const origHydrate = driver.prepareHydratedValue.bind(driver);
-  driver.prepareHydratedValue = (value: any, col: any) =>
-    col.type === 'timestamp' ? origHydrate(value, { ...col, type: 'datetime' }) : origHydrate(value, col);
-  const origPersist = driver.preparePersistentValue.bind(driver);
-  driver.preparePersistentValue = (value: any, col: any) =>
-    col.type === 'timestamp' ? origPersist(value, { ...col, type: 'datetime' }) : origPersist(value, col);
-}
 
 @Module({
   imports: [

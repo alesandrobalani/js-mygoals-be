@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { createTestDataSource, createTestRepositories, seedTestCategories } from '../../test-utils/test-datasource';
 import { PostgreSQLTransactionRepository } from '../../infrastructure/persistence/postgresql/transaction.repository';
 import { PostgreSQLAccountRepository } from '../../infrastructure/persistence/postgresql/account.repository';
-import { PostgreSQLTransactionItemRepository } from '../../infrastructure/persistence/postgresql/transaction-item.repository';
 import { TransactionEntity } from '../../infrastructure/persistence/postgresql/transaction.entity';
 import { GetStrategicViewUseCase } from './get-strategic-view.usecase';
 import { Transaction } from '../../domain/entities/transaction.entity';
@@ -42,7 +41,7 @@ describe('GetStrategicViewUseCase', () => {
     );
 
   it('should return empty array when no transactions exist in period', async () => {
-    const useCase = new GetStrategicViewUseCase(repo as any);
+    const useCase = new GetStrategicViewUseCase(repo);
 
     const result = await useCase.execute(new Date('2024-01-01'), new Date('2024-12-31'));
 
@@ -50,7 +49,7 @@ describe('GetStrategicViewUseCase', () => {
   });
 
   it('should return only transactions within the period', async () => {
-    const useCase = new GetStrategicViewUseCase(repo as any);
+    const useCase = new GetStrategicViewUseCase(repo);
 
     await repo.create(makeTransaction(100, new Date('2024-03-15')));
     await repo.create(makeTransaction(200, new Date('2024-07-20')));
@@ -63,7 +62,7 @@ describe('GetStrategicViewUseCase', () => {
   });
 
   it('should resolve reference names instead of IDs', async () => {
-    const useCase = new GetStrategicViewUseCase(repo as any);
+    const useCase = new GetStrategicViewUseCase(repo);
 
     await repo.create(makeTransaction(500, new Date('2024-06-10')));
 
@@ -78,7 +77,7 @@ describe('GetStrategicViewUseCase', () => {
   });
 
   it('should return correct flat fields for each transaction', async () => {
-    const useCase = new GetStrategicViewUseCase(repo as any);
+    const useCase = new GetStrategicViewUseCase(repo);
 
     await repo.create(makeTransaction(1500, new Date('2024-04-05'), TransactionType.INCOME));
 
@@ -96,7 +95,7 @@ describe('GetStrategicViewUseCase', () => {
   });
 
   it('should return results ordered by dueDate descending', async () => {
-    const useCase = new GetStrategicViewUseCase(repo as any);
+    const useCase = new GetStrategicViewUseCase(repo);
 
     await repo.create(makeTransaction(100, new Date('2024-01-10')));
     await repo.create(makeTransaction(200, new Date('2024-06-15')));
@@ -113,7 +112,7 @@ describe('GetStrategicViewUseCase', () => {
     const failingRepo = {
       findAllByPeriod: jest.fn().mockRejectedValue(new Error('DB connection failed')),
     };
-    const useCase = new GetStrategicViewUseCase(failingRepo as any);
+    const useCase = new GetStrategicViewUseCase(failingRepo as unknown as ConstructorParameters<typeof GetStrategicViewUseCase>[0]);
 
     await expect(useCase.execute(new Date('2024-01-01'), new Date('2024-12-31')))
       .rejects.toThrow('DB connection failed');

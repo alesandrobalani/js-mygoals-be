@@ -29,7 +29,7 @@ describe('LogoutUseCase', () => {
   });
 
   it('should revoke the refresh token on logout', async () => {
-    const useCase = new LogoutUseCase(refreshTokenRepository as any);
+    const useCase = new LogoutUseCase(refreshTokenRepository);
 
     const userId = randomUUID();
     await userRepository.create(new User(userId, 'user@test.com', 'hash', 'User', UserRole.USER, new Date()));
@@ -47,7 +47,7 @@ describe('LogoutUseCase', () => {
   });
 
   it('should do nothing if token does not exist', async () => {
-    const useCase = new LogoutUseCase(refreshTokenRepository as any);
+    const useCase = new LogoutUseCase(refreshTokenRepository);
 
     await expect(useCase.execute('non-existent')).resolves.toBeUndefined();
   });

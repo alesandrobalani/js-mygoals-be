@@ -30,8 +30,8 @@ describe('RegisterUseCase', () => {
 
   function makeUseCase() {
     const jwtService = new JwtService({ secret: 'test-secret' });
-    const tokenService = new TokenService(jwtService, refreshTokenRepository as any);
-    return new RegisterUseCase(userRepository as any, tokenService);
+    const tokenService = new TokenService(jwtService, refreshTokenRepository);
+    return new RegisterUseCase(userRepository, tokenService);
   }
 
   it('should register a user and return tokens', async () => {

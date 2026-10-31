@@ -17,7 +17,7 @@ describe('CreateTransactionItemUseCase', () => {
   beforeEach(async () => { await dataSource.getRepository(TransactionItemEntity).clear(); });
 
   it('should create a transaction item', async () => {
-    const useCase = new CreateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new CreateTransactionItemUseCase(transactionItemRepository);
 
     const item = await useCase.execute({ name: 'Test Item', description: 'Test description' });
 
@@ -27,7 +27,7 @@ describe('CreateTransactionItemUseCase', () => {
   });
 
   it('should not allow duplicate transaction item names', async () => {
-    const useCase = new CreateTransactionItemUseCase(transactionItemRepository as any);
+    const useCase = new CreateTransactionItemUseCase(transactionItemRepository);
 
     await useCase.execute({ name: 'Existing Item', description: 'First item' });
 

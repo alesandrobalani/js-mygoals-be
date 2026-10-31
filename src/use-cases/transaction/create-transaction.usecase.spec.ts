@@ -39,10 +39,10 @@ describe('CreateTransactionUseCase', () => {
 
   it('should create a transaction', async () => {
     const useCase = new CreateTransactionUseCase(
-      transactionRepository as any,
-      categoryRepository as any,
-      accountRepository as any,
-      transactionItemRepository as any,
+      transactionRepository,
+      categoryRepository,
+      accountRepository,
+      transactionItemRepository,
     );
 
     const transactionDate = new Date('2024-12-01');
@@ -61,7 +61,7 @@ describe('CreateTransactionUseCase', () => {
       settled: false,
     };
 
-    const transaction = await useCase.execute(payload as any);
+    const transaction = await useCase.execute(payload);
 
     expect(transaction).toMatchObject({
       description: 'Salary',
@@ -76,10 +76,10 @@ describe('CreateTransactionUseCase', () => {
 
   it('should create a transaction with dueDate', async () => {
     const useCase = new CreateTransactionUseCase(
-      transactionRepository as any,
-      categoryRepository as any,
-      accountRepository as any,
-      transactionItemRepository as any,
+      transactionRepository,
+      categoryRepository,
+      accountRepository,
+      transactionItemRepository,
     );
 
     const dueDate = new Date('2024-12-31');
@@ -99,7 +99,7 @@ describe('CreateTransactionUseCase', () => {
       settled: true,
     };
 
-    const transaction = await useCase.execute(payload as any);
+    const transaction = await useCase.execute(payload);
 
     expect(transaction).toMatchObject({
       description: 'Bill',
@@ -114,10 +114,10 @@ describe('CreateTransactionUseCase', () => {
 
   it('should create a transaction without description', async () => {
     const useCase = new CreateTransactionUseCase(
-      transactionRepository as any,
-      categoryRepository as any,
-      accountRepository as any,
-      transactionItemRepository as any,
+      transactionRepository,
+      categoryRepository,
+      accountRepository,
+      transactionItemRepository,
     );
 
     const transactionDate = new Date('2024-12-01');
@@ -134,7 +134,7 @@ describe('CreateTransactionUseCase', () => {
       settled: false,
     };
 
-    const transaction = await useCase.execute(payload as any);
+    const transaction = await useCase.execute(payload);
 
     expect(transaction).toMatchObject({
       amount: 500,

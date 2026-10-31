@@ -38,7 +38,7 @@ describe('DeleteTransactionItemUseCase', () => {
   });
 
   it('should delete a transaction item if no transactions are using it', async () => {
-    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository as any, transactionRepository as any);
+    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository, transactionRepository);
 
     const item = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Test Item', 'Desc', new Date()));
 
@@ -49,7 +49,7 @@ describe('DeleteTransactionItemUseCase', () => {
   });
 
   it('should throw an error if the transaction item is used by transactions', async () => {
-    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository as any, transactionRepository as any);
+    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository, transactionRepository);
 
     const item = await transactionItemRepository.create(new TransactionItem(randomUUID(), 'Test Item', 'Desc', new Date()));
     const account = await accountRepository.create(new Account(randomUUID(), 'Account', 'Desc', new Date()));
@@ -66,7 +66,7 @@ describe('DeleteTransactionItemUseCase', () => {
   });
 
   it('should throw an error if the transaction item does not exist', async () => {
-    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository as any, transactionRepository as any);
+    const useCase = new DeleteTransactionItemUseCase(transactionItemRepository, transactionRepository);
 
     await expect(useCase.execute('nonexistent')).rejects.toThrow();
   });

@@ -453,8 +453,8 @@ describe('Transactions integration', () => {
       .expect(200);
 
     expect(summaryResponse.body).toHaveLength(2);
-    const account1Summary = summaryResponse.body.find((s: any) => s.accountName === 'Summary Account');
-    const account2Summary = summaryResponse.body.find((s: any) => s.accountName === 'Summary Account 2'); 
+    const account1Summary = summaryResponse.body.find((s: { accountName: string }) => s.accountName === 'Summary Account');
+    const account2Summary = summaryResponse.body.find((s: { accountName: string }) => s.accountName === 'Summary Account 2'); 
     expect(account1Summary).toMatchObject({ incomeSettled: 1000, incomeNotSettled: 3000, expenseSettled: 0, expenseNotSettled: 0 });
     expect(account2Summary).toMatchObject({ incomeSettled: 0, incomeNotSettled: 0, expenseSettled: 1200, expenseNotSettled: 0 });
   });
