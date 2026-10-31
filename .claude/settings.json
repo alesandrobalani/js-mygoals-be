@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx jest *)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(docker compose *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch *)",
+      "PowerShell(npm run *)",
+      "PowerShell(npx jest *)",
+      "PowerShell(npx tsc *)",
+      "PowerShell(npx eslint *)",
+      "Read(//c/dev/js-mygoals-fe/**)"
+    ],
+    "additionalDirectories": [
+      "c:/dev/js-mygoals-fe"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.mjs\" post-edit",
+            "timeout": 180,
+            "statusMessage": "Lint + testes relacionados..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.mjs\" stop",
+            "timeout": 120,
+            "statusMessage": "Typecheck (tsc --noEmit)..."
+          }
+        ]
+      }
+    ]
+  }
+}
