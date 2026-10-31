@@ -15,6 +15,8 @@ import { CreateTransferTransactionUseCase } from '../../use-cases/transaction/cr
 import { CreateTransferTransactionDto } from '../../dto/create-transfer-transaction.dto';
 import { GetStrategicViewUseCase } from '../../use-cases/transaction/get-strategic-view.usecase';
 import { StrategicViewQueryDto } from '../../dto/strategic-view-query.dto';
+import { CopyTransactionsDto } from '../../dto/copy-transactions.dto';
+import { CopyTransactionsUseCase } from '../../use-cases/transaction/copy-transactions.usecase';
 
 @Roles(UserRole.USER)
 @Controller('transactions')
@@ -30,7 +32,28 @@ export class TransactionsController {
     private readonly deleteTransaction: DeleteTransactionUseCase,
     private readonly createTransferTransaction: CreateTransferTransactionUseCase,
     private readonly getStrategicView: GetStrategicViewUseCase,
+    private readonly copyTransactions: CopyTransactionsUseCase,
   ) {}
+
+  @Post('copy')
+  @HttpCode(HttpStatus.OK)
+  async copy(@Body() payload: CopyTransactionsDto) {
+    this.logger.log(
+      `POST /transactions/copy - ids=${payload.transactionIds.length}, months=${payload.targetMonths.join(',')}, dryRun=${payload.dryRun ?? false}`,
+      'TransactionsController',
+    );
+
+    try {
+      const result = await this.copyTransactions.execute(payload);
+      this.logger.log(`Copy result: created=${result.created.length}, skipped=${result.skipped.length}, dryRun=${result.dryRun}`, 'TransactionsController');
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to copy transactions: ${errorMessage}`, errorStack, 'TransactionsController');
+      throw error;
+    }
+  }
 
   @Post('transfer')
   @HttpCode(HttpStatus.CREATED)

@@ -136,6 +136,42 @@ Regras:
 - A categoria deve ter `isTransfer: true` (retorna 400 caso contrário)
 - Contas ou categoria inexistentes retornam 400
 
+### Copiar lançamentos para competências futuras
+Prévia (nada é gravado):
+```bash
+curl -X POST http://localhost:3000/transactions/copy   -H "Content-Type: application/json"   -H "Authorization: Bearer <seu-access-token>"   -d '{
+    "transactionIds": ["<id-da-transacao-1>", "<id-da-transacao-2>"],
+    "targetMonths": ["2026-11", "2026-12", "2027-01"],
+    "dryRun": true
+  }'
+```
+Para gravar, envie `"dryRun": false` (ou omita o campo). Retorna `200 OK`:
+```json
+{
+  "dryRun": true,
+  "created": [
+    {
+      "sourceId": "<id-da-transacao-1>",
+      "targetMonth": "2026-11",
+      "description": "Aluguel",
+      "amount": 1200,
+      "type": "expense",
+      "dueDate": "2026-11-30",
+      "transactionDate": "2026-11-25"
+    }
+  ],
+  "skipped": [
+    { "sourceId": "<id-da-transacao-2>", "targetMonth": "2026-12", "dueDate": "2026-12-10", "reason": "duplicate" }
+  ]
+}
+```
+Regras:
+- `transactionIds`: 1 a 500 UUIDs sem repetição; `targetMonths`: 1 a 24 valores `YYYY-MM` sem repetição
+- Cópias nascem com `settled: false`; o dia do vencimento é mantido ou ajustado para o último dia do mês
+- Duplicados são pulados e listados em `skipped`
+- Ids inexistentes retornam `404` com `notFoundIds`; transferências retornam `400` com `transferIds` (nada é criado)
+- Com `dryRun: false` a gravação é tudo ou nada
+
 ### Remover uma transação
 ```bash
 curl -X DELETE http://localhost:3000/transactions/<id-da-transacao> \

@@ -50,5 +50,10 @@ export interface TransactionRepository {
   findSumGroupByAccountAndTypeAndSettled(endDate: Date): Promise<TransactionByAccountAndTypeAndSettledSummary[]>;
   findByPeriod(startDate: Date, endDate: Date, page: number, limit: number): Promise<PaginatedTransactions>;
   findAllByPeriod(startDate: Date, endDate: Date): Promise<Transaction[]>;
+  findByIds(ids: string[]): Promise<Transaction[]>;
+  /** Lançamentos cujo dueDate está entre `startDate` e `endDate` (`YYYY-MM-DD`, inclusive), sem paginação nem ordenação. */
+  findAllByDueDateRange(startDate: string, endDate: string): Promise<Transaction[]>;
+  /** Grava todos os lançamentos em uma única transação de banco (tudo ou nada). */
+  createMany(transactions: Transaction[]): Promise<void>;
   delete(id: string): Promise<void>;
 }

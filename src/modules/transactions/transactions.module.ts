@@ -12,6 +12,7 @@ import { GetTransactionsSummaryByAccountByTransactionTypeUseCase } from '../../u
 import { DeleteTransactionUseCase } from '../../use-cases/transaction/delete-transaction.usecase';
 import { CreateTransferTransactionUseCase } from '../../use-cases/transaction/create-transfer-transaction.usecase';
 import { GetStrategicViewUseCase } from '../../use-cases/transaction/get-strategic-view.usecase';
+import { CopyTransactionsUseCase } from '../../use-cases/transaction/copy-transactions.usecase';
 
 const usePostgres = process.env.DB_MODE === 'postgres';
 
@@ -31,6 +32,7 @@ const usePostgres = process.env.DB_MODE === 'postgres';
     DeleteTransactionUseCase,
     CreateTransferTransactionUseCase,
     GetStrategicViewUseCase,
+    CopyTransactionsUseCase,
   ],
 })
 export class TransactionsModule {}
